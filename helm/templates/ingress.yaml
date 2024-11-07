@@ -1,0 +1,36 @@
+{{- $serviceName := include "fixitpdf.fullname" . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "fixitpdf.fullname" . }}
+  annotations:
+    alb.ingress.kubernetes.io/group.name: testalb
+    # loadbalancer needs to match between group.names
+    alb.ingress.kubernetes.io/load-balancer-name: k8testing-lb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}, {"HTTP":80}]'
+    # This unfortunately applies to the entire ingress but we actually only want it for one particular service
+    alb.ingress.kubernetes.io/healthcheck-path: /
+
+    # NOTE: This impacts all ingress rules within a given ingress group. And we have multiple ingresses in a group
+    # because it allows us to share a single (expensive) load balancer in AWS.
+    # So just know that setting ssl-redirect here triggers all other ingresses (e.g shieldgps.com) to also have ssl redirect
+    alb.ingress.kubernetes.io/ssl-redirect: '443'
+    # You dont seem to need to specify certs, if you have them in certiciate manager they will be automatically picked up
+    #alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:us-east-1:509072450144:certificate/c8693632-6888-4cde-b5b4-f10c092a79a2
+spec:
+  ingressClassName: alb
+  rules:
+  {{- range .Values.ingress.hosts }}
+    - host: {{ tpl . $ | quote }}
+      http:
+        paths:
+        - pathType: Prefix
+          path: "/"
+          backend:
+            service:
+              name: {{ $serviceName }}-web
+              port:
+                number: 3000
+  {{- end }}

@@ -1,0 +1,86 @@
+name: FixItPDF Build & Publish
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch: 
+
+jobs:
+  build-web-service:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Use NodeJS 18
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      run: aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin 509072450144.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+
+    - name: NPM Setup
+      run: npm install
+
+    - name: Build, tag, and push image to Amazon ECR
+      env:
+        ECR_REGISTRY: 509072450144.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+        ECR_REPOSITORY: fixitpdf/web
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        npm run build
+        docker build . -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+  deploy:
+    needs: [build-web-service]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.21.2'
+      id: install
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+    - name: Set up kubeconfig
+      run: |
+        aws eks --region ${{ secrets.AWS_REGION }} update-kubeconfig --name shieldgps-k8s-prod
+
+    - name: Helm tool installer
+      uses: azure/setup-helm@v3.5
+
+    - name: Create secrets.yaml file
+      run: |
+        cat <<EOF > secrets.yaml
+        secrets:
+          test_secret_key: "value123"
+        EOF
+
+    - name: Deploy with Helm
+      run: |
+        helm upgrade fixitpdf ./helm \
+          -f ./secrets.yaml \
+          --namespace fixitpdf \
+          --set web.image.tag=${{ github.sha }} \
+
+    - name: Cleanup secrets file
+      if: always()
+      run: rm -f secrets.yaml

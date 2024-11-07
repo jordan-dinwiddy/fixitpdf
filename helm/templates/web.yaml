@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fixitpdf.fullname" . }}-web
+  labels:
+    app: {{ include "fixitpdf.fullname" . }}-web
+spec:
+  replicas: {{ .Values.web.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "fixitpdf.fullname" . }}-web
+  template:
+    metadata:
+      labels:
+        app: {{ include "fixitpdf.fullname" . }}-web
+      annotations:
+        prometheus.io/scrape: "false"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9090"
+    spec:
+      containers:
+        - name: {{ include "fixitpdf.fullname" . }}-web
+          image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          ports:
+            - name: http
+              containerPort: 3000
+            - name: metrics
+              containerPort: 9090
+          env:
+            - name: NODE_ENV
+              value: production
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "fixitpdf.fullname" . }}-web
+spec:
+  selector:
+    app: {{ include "fixitpdf.fullname" . }}-web
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
