@@ -139,7 +139,7 @@ export default function HomePage() {
                   {
                     isDragActive ?
                       <p className="text-xl font-semibold text-purple-700">Drop the PDF files here ...</p> :
-                      <p className="text-xl font-semibold text-gray-700">Drag 'n' drop PDF files here, or click to select</p>
+                      <p className="text-xl font-semibold text-gray-700">Drag &apos;n&apos; drop PDF files here, or click to select</p>
                   }
                   <p className="mt-2 text-sm text-gray-500">Supported files: PDF</p>
                 </div>
