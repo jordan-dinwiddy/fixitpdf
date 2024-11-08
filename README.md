@@ -31,8 +31,3 @@ docker push 509072450144.dkr.ecr.us-east-1.amazonaws.com/fixitpdf/web:latest
 ```
 helm install --dry-run fixitpdf ./helm -f secrets.yaml
 ```
-
-
-## Resources
-### Icons
-https://icon-sets.iconify.design/simple-icons/quickbooks/
