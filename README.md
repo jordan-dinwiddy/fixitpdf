@@ -22,6 +22,9 @@ docker build -t fixitpdf/web .
 
 # Now run
 docker run -p 3000:3000 fixitpdf/web
+
+# Or to debug
+docker run -it fixitpdf/web sh
 ```
 
 ## Manually pushing new image
