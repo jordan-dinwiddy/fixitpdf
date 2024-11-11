@@ -10,6 +10,10 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Tech Stack
+* Typescript, NextJS, React, Postgres, Prisma (ORM), Bull (async processing and queues);
+
+
 ## Building
 ```bash
 # Build
@@ -30,4 +34,68 @@ docker push 509072450144.dkr.ecr.us-east-1.amazonaws.com/fixitpdf/web:latest
 ### Testing Helm rendering
 ```
 helm install --dry-run fixitpdf ./helm -f secrets.yaml
+```
+
+
+## Setup Notes
+```
+# Install Prisma and the Prisma client
+npm install prisma @prisma/client
+
+# Initialize Prisma in the project
+npx prisma init
+
+# Setup dev database
+psql -d postgres
+CREATE DATABASE fixitpdf_dev;
+CREATE USER fixitpdf_dev WITH PASSWORD 'fixitpdf_dev';
+GRANT ALL PRIVILEGES ON DATABASE fixitpdf_dev TO fixitpdf_dev;
+
+# In development, user needs permission to create new databases
+ALTER USER fixitpdf_dev CREATEDB;
+
+# Local dev database doesn't require creds
+DATABASE_URL="postgresql://localhost:5432/fixitpdf_dev"
+
+# Create a migration
+npx prisma migrate dev --name init
+
+# Generate the Prisma client
+npx prisma generate
+
+
+```
+
+## APIs
+```
+# Create a test user
+curl -X POST http://localhost:3000/api/utils/create-test-user
+
+# List users
+curl http://localhost:3000/api/utils/users
+```
+
+## Database Modification / Migrations
+### Development
+1. Update `schema.prisma`
+2. Create the migration and apply it to development: `npx prisma migrate dev --name add-age-to-user`
+3. Regenerate the Prisma client: `npx prisma generate`
+
+Just **note** that the `prisma generate` command generates new code in `/node_modules' and
+therefore doesn't intent for that code to be checked in to Git. Presumably each new fresh
+build of the project will regenerate the client.
+
+### Production
+1. `npx prisma migrate deploy` - just applies any outstanding migrations
+
+
+## K8's
+### DBMigration roles and bindings
+The `k8s-wait-for` script is used by pods during init to ensure they don't launch before the migration job has 
+completed its run. However this script requires permission to query K8's to ask for the status of the migration
+job. That requires the following setup per instructions [here](https://github.com/groundnuty/k8s-wait-for?tab=readme-ov-file).
+
+```bash
+kubectl create role pod-reader --verb=get --verb=list --verb=watch --resource=pods,services,deployments,jobs
+kubectl create rolebinding default-pod-reader --role=pod-reader --serviceaccount=fixitpdf:default --namespace=fixitpdf
 ```

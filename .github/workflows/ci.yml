@@ -72,6 +72,7 @@ jobs:
         cat <<EOF > secrets.yaml
         secrets:
           test_secret_key: "value123"
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
         EOF
 
     - name: Deploy with Helm
