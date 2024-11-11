@@ -37,6 +37,9 @@ spec:
           env:
             - name: NODE_ENV
               value: production
+          envFrom:
+            - secretRef:
+                name: {{ include "fixitpdf.fullname" . }}
           readinessProbe:
             httpGet:
               path: /
