@@ -9,6 +9,10 @@ web:
   image:
     repository: 509072450144.dkr.ecr.us-east-1.amazonaws.com/fixitpdf/web
     tag: "latest"
+    
+dbMigrationJob:
+  ## Should the job be rescheduled on the same node if it fails, or just stopped
+  restartPolicy: Never
 
 ingress:
   hosts:

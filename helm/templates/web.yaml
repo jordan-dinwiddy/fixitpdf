@@ -18,6 +18,13 @@ spec:
         prometheus.io/path: /metrics
         prometheus.io/port: "9090"
     spec:
+      initContainers:
+        - name: "dbmigrate-wait"
+          image: "groundnuty/k8s-wait-for:1.3"
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          args: 
+          - "job"
+          - "{{ include "fixitpdf.fullname" . }}-dbmigrate-{{ .Release.Revision }}"
       containers:
         - name: {{ include "fixitpdf.fullname" . }}-web
           image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag | default .Chart.AppVersion }}"

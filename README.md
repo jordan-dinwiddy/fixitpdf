@@ -87,3 +87,15 @@ build of the project will regenerate the client.
 
 ### Production
 1. `npx prisma migrate deploy` - just applies any outstanding migrations
+
+
+## K8's
+### DBMigration roles and bindings
+The `k8s-wait-for` script is used by pods during init to ensure they don't launch before the migration job has 
+completed its run. However this script requires permission to query K8's to ask for the status of the migration
+job. That requires the following setup per instructions [here](https://github.com/groundnuty/k8s-wait-for?tab=readme-ov-file).
+
+```bash
+kubectl create role pod-reader --verb=get --verb=list --verb=watch --resource=pods,services,deployments,jobs
+kubectl create rolebinding default-pod-reader --role=pod-reader --serviceaccount=fixitpdf:default --namespace=fixitpdf
+```

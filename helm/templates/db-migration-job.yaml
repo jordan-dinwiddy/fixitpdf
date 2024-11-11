@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "fixitpdf.fullname" . }}-dbmigrate-{{ .Release.Revision }}
+  labels:
+    app: {{ include "fixitpdf.fullname" . }}-dbmigrate
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: {{ include "fixitpdf.fullname" . }}-dbmigrate
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
+        command: ["npx", "prisma", "migrate", "deploy"]
+        args: []
+        env:
+          - name: APP_TYPE
+            value: "dbmigrate"
+        envFrom:
+          - secretRef:
+              name: {{ include "fixitpdf.fullname" . }}
+      restartPolicy: {{ .Values.dbMigrationJob.restartPolicy }}
