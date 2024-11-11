@@ -74,3 +74,12 @@ curl -X POST http://localhost:3000/api/utils/create-test-user
 # List users
 curl http://localhost:3000/api/utils/users
 ```
+
+## Database Modification / Migrations
+### Development
+1. Update `schema.prisma`
+2. Create the migration and apply it to development: `npx prisma migrate dev --name add-age-to-user`
+3. Regenerate the Prisma client: `npx prisma generate`
+
+### Production
+1. `npx prisma migrate deploy` - just applies any outstanding migrations
