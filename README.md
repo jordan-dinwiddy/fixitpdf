@@ -52,7 +52,11 @@ npx prisma init
 psql -d postgres
 CREATE DATABASE fixitpdf_dev;
 CREATE USER fixitpdf_dev WITH PASSWORD 'fixitpdf_dev';
+
+
+# Run these commands whilst connected to the correct database
 GRANT ALL PRIVILEGES ON DATABASE fixitpdf_dev TO fixitpdf_dev;
+GRANT CREATE ON SCHEMA public TO fixitpdf_dev;
 
 # In development, user needs permission to create new databases
 ALTER USER fixitpdf_dev CREATEDB;
@@ -65,6 +69,22 @@ npx prisma migrate dev --name init
 
 # Generate the Prisma client
 npx prisma generate
+
+
+```
+
+## PSQL Commands
+```
+psql -h mycoldplunge-prod.cvammhgiaev1.us-east-1.rds.amazonaws.com --username=mycoldplunge
+
+# List databases
+\l;
+
+# List tables of the current database
+\dt;
+
+# Change database? 
+\c;
 
 
 ```
