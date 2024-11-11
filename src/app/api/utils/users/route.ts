@@ -1,4 +1,3 @@
-// src/app/api/utils/users/route.ts
 import { NextResponse } from 'next/server';
 import prisma from '../../../../lib/prisma';
 import { Prisma } from '@prisma/client';
@@ -16,7 +15,11 @@ export async function GET(): Promise<NextResponse<ListUsersResponse>> {
     // Fetch all users and include their associated files
     const users = await prisma.user.findMany({
       include: {
-        files: true,
+        files: {
+          where: {
+            deletedAt: null,
+          },
+        },
       },
     });
 

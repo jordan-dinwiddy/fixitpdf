@@ -81,5 +81,9 @@ curl http://localhost:3000/api/utils/users
 2. Create the migration and apply it to development: `npx prisma migrate dev --name add-age-to-user`
 3. Regenerate the Prisma client: `npx prisma generate`
 
+Just **note** that the `prisma generate` command generates new code in `/node_modules' and
+therefore doesn't intent for that code to be checked in to Git. Presumably each new fresh
+build of the project will regenerate the client.
+
 ### Production
 1. `npx prisma migrate deploy` - just applies any outstanding migrations
