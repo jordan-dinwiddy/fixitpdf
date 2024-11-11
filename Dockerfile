@@ -30,7 +30,11 @@ RUN npm run build
 FROM base AS runner
 WORKDIR /app
 
-# Needed to run migrations
+# Jdinwiddy 11Nov24: Needed to run migrations
+# Because we're using the NextJS Standalone output, the prism module (in node_modules)
+# isn't copied over to the final container image. So here we install it manually. 
+# NOTE however I'm a little worried the prisma version installed here doesn't match 
+# the version used in the application...
 RUN npm install -g prisma
 
 ENV NODE_ENV=production
