@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "fixitpdf.fullname" . }}-web
+  name: {{ include "fixitpdf.fullname" . }}-worker
   labels:
-    app: {{ include "fixitpdf.fullname" . }}-web
+    app: {{ include "fixitpdf.fullname" . }}-worker
 spec:
-  replicas: {{ .Values.web.replicaCount }}
+  replicas: {{ .Values.worker.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "fixitpdf.fullname" . }}-web
+      app: {{ include "fixitpdf.fullname" . }}-worker
   template:
     metadata:
       labels:
-        app: {{ include "fixitpdf.fullname" . }}-web
+        app: {{ include "fixitpdf.fullname" . }}-worker
       annotations:
         prometheus.io/scrape: "false"
         prometheus.io/path: /metrics
@@ -28,36 +28,13 @@ spec:
           - "job"
           - "{{ include "fixitpdf.fullname" . }}-dbmigrate-{{ .Release.Revision }}"
       containers:
-        - name: {{ include "fixitpdf.fullname" . }}-web
+        - name: {{ include "fixitpdf.fullname" . }}-worker
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.imagePullPolicy }}
-          ports:
-            - name: http
-              containerPort: 3000
-            - name: metrics
-              containerPort: 9090
+          command: [ "node", "dist/worker/worker.js" ]
           env:
             - name: NODE_ENV
               value: production
           envFrom:
             - secretRef:
                 name: {{ include "fixitpdf.fullname" . }}
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 3000
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            successThreshold: 3
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "fixitpdf.fullname" . }}-web
-spec:
-  selector:
-    app: {{ include "fixitpdf.fullname" . }}-web
-  ports:
-    - protocol: TCP
-      port: 3000
-      targetPort: 3000
