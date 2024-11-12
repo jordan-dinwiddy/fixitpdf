@@ -144,4 +144,8 @@ docker run -it fixitpdf/web sh
 
 
 docker build -f packages/web/Dockerfile -t fixitpdf/web .
+
+# From the root of the project
+npm install
+npm run build -w packages/shared -w packages/web -w packages/worke
 ```
