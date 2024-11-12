@@ -4,14 +4,16 @@
 
 imagePullPolicy: IfNotPresent
 
-image:
-  repository: 509072450144.dkr.ecr.us-east-1.amazonaws.com/fixitpdf/web
-  tag: "latest"
-
 web:
+  image:
+    repository: 509072450144.dkr.ecr.us-east-1.amazonaws.com/fixitpdf/web
+    tag: "latest"
   replicaCount: 2
 
 worker:
+  image:
+    repository: 509072450144.dkr.ecr.us-east-1.amazonaws.com/fixitpdf/worker
+    tag: "latest"
   replicaCount: 1
     
 dbMigrationJob:

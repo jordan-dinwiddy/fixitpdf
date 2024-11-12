@@ -1,7 +1,7 @@
 import { Queue } from 'bullmq';
-import redis from './redis';
-
+import { redisClient } from 'fixitpdf-shared';
 // Initialize a new BullMQ queue
+
 export const defaultQueue = new Queue('defaultQueue', {
-  connection: redis,
+  connection: redisClient,
 });

@@ -1,43 +1,24 @@
 {
   "name": "fixitpdf",
-  "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/web",
+    "packages/worker",
+    "packages/shared"
+  ],
+  "description": "Root monorepo project for FixItPDF",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build && tsc --project tsconfig.worker.json",
-    "start": "next start",
-    "lint": "next lint",
-    "worker:dev": "dotenv -e .env -- npx tsx --watch src/worker/worker.ts"
+    "build": "npm run build -ws"
   },
-  "dependencies": {
-    "@prisma/client": "^5.22.0",
-    "@radix-ui/react-dropdown-menu": "^2.1.2",
-    "@radix-ui/react-label": "^2.1.0",
-    "@radix-ui/react-slot": "^1.1.0",
-    "bullmq": "^5.25.6",
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.1.1",
-    "dotenv": "^16.4.5",
-    "ioredis": "^5.4.1",
-    "lucide-react": "^0.454.0",
-    "next": "15.0.3",
-    "prisma": "^5.22.0",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-dropzone": "^14.3.5",
-    "tailwind-merge": "^2.5.4",
-    "tailwindcss-animate": "^1.0.7",
-    "tsx": "^4.19.2"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jordan-dinwiddy/fixitpdf.git"
   },
-  "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "dotenv-cli": "^7.4.2",
-    "eslint": "^8",
-    "eslint-config-next": "15.0.3",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
-  }
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jordan-dinwiddy/fixitpdf/issues"
+  },
+  "homepage": "https://github.com/jordan-dinwiddy/fixitpdf#readme"
 }

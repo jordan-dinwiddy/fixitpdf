@@ -1,6 +1,6 @@
 // worker/emailWorker.ts
 import { Worker } from 'bullmq';
-import redis from '../lib/redis';
+import { redisClient } from 'fixitpdf-shared';
 
 console.log('Loading email worker...');
 console.log('Redis URL:', process.env.REDIS_URL);
@@ -13,7 +13,7 @@ const defaultQueueWorker = new Worker(
     console.log(job.data);
 
   },
-  { connection: redis }
+  { connection: redisClient }
 );
 
 // Error handling
@@ -21,4 +21,12 @@ defaultQueueWorker.on('failed', (job, err) => {
   console.error(`Job failed: ${job?.id}, Error: ${err.message}`);
 });
 
-console.log('Email worker is running...');
+console.log('BullMQ Worker is running...');
+
+console.log(`${new Date().toISOString()} - Worker is running...`);
+
+// Just print hell to the screen every 1 second
+setInterval(() => {
+  console.log(`${new Date().toISOString()} - Hello from worker`);
+}, 1000);
+

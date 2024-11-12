@@ -13,9 +13,9 @@ spec:
     spec:
       containers:
       - name: {{ .Chart.Name }}
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        image: "{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.imagePullPolicy }}
-        command: ["npx", "prisma", "migrate", "deploy"]
+        command: ["npm", "run", "migrate", "-w", "packages/shared"]
         args: []
         env:
           - name: APP_TYPE

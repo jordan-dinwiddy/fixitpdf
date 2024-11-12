@@ -29,7 +29,7 @@ spec:
           - "{{ include "fixitpdf.fullname" . }}-dbmigrate-{{ .Release.Revision }}"
       containers:
         - name: {{ include "fixitpdf.fullname" . }}-web
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.imagePullPolicy }}
           ports:
             - name: http

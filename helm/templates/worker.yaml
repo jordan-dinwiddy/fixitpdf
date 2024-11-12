@@ -29,9 +29,9 @@ spec:
           - "{{ include "fixitpdf.fullname" . }}-dbmigrate-{{ .Release.Revision }}"
       containers:
         - name: {{ include "fixitpdf.fullname" . }}-worker
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.imagePullPolicy }}
-          command: [ "node", "dist/worker/worker.js" ]
+          command: [ "npm", "run", "start", "-w", "packages/worker" ]
           env:
             - name: NODE_ENV
               value: production

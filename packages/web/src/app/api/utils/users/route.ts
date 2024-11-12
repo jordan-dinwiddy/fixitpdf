@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '../../../../lib/prisma';
-import { Prisma } from '@prisma/client';
+import { prismaClient, Prisma } from 'fixitpdf-shared';
 import { BaseResponse } from '@/types/responses';
 
 export type ListUsersResponse = BaseResponse<Prisma.UserGetPayload<{ include: { files: true } }>[]>;
@@ -13,7 +12,7 @@ export type ListUsersResponse = BaseResponse<Prisma.UserGetPayload<{ include: { 
 export async function GET(): Promise<NextResponse<ListUsersResponse>> {
   try {
     // Fetch all users and include their associated files
-    const users = await prisma.user.findMany({
+    const users = await prismaClient.user.findMany({
       include: {
         files: {
           where: {
