@@ -17,6 +17,8 @@ spec:
         prometheus.io/scrape: "false"
         prometheus.io/path: /metrics
         prometheus.io/port: "9090"
+        # Important to restart nodes whenever secrets/config change
+        checksum/config: "{{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}"
     spec:
       initContainers:
         - name: "dbmigrate-wait"

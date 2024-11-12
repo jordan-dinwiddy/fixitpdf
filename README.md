@@ -102,14 +102,22 @@ curl http://localhost:3000/api/utils/users
 ### Development
 1. Update `schema.prisma`
 2. Create the migration and apply it to development: `npx prisma migrate dev --name add-age-to-user`
+  * This writes a new file to `/prisma/migrations` that represents the SQL DDL.
+  * It applies the change to the development database
 3. Regenerate the Prisma client: `npx prisma generate`
+  * This process reads in the schema file and generates some types to access the database.
+  * The output of this should **not** be stored in source control. Instead it gets written to `/node_modules`. 
+  * So the idea is that the generate process runs on every build / deploy.
+  * It certainly runs whenever the schema changes.
+  * I'm pretty sure the prisma client npm install has a post install hook that triggers generate.
 
 Just **note** that the `prisma generate` command generates new code in `/node_modules' and
 therefore doesn't intent for that code to be checked in to Git. Presumably each new fresh
 build of the project will regenerate the client.
 
 ### Production
-1. `npx prisma migrate deploy` - just applies any outstanding migrations
+1. `npx prisma migrate deploy` - just applies any outstanding migrations.
+  * Note that in order to run this the prisma CLI must be available.
 
 
 ## K8's
@@ -121,4 +129,23 @@ job. That requires the following setup per instructions [here](https://github.co
 ```bash
 kubectl create role pod-reader --verb=get --verb=list --verb=watch --resource=pods,services,deployments,jobs
 kubectl create rolebinding default-pod-reader --role=pod-reader --serviceaccount=fixitpdf:default --namespace=fixitpdf
+```
+
+
+
+# Notes
+```
+docker build -f packages/worker/Dockerfile -t fixitpdf/worker .
+docker run -it fixitpdf/worker sh
+
+
+docker build -f packages/web/Dockerfile -t fixitpdf/web .
+docker run -it fixitpdf/web sh
+
+
+docker build -f packages/web/Dockerfile -t fixitpdf/web .
+
+# From the root of the project
+npm install
+npm run build -w packages/shared -w packages/web -w packages/worke
 ```

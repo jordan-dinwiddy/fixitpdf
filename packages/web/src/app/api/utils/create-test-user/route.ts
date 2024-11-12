@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import prisma from '../../../../lib/prisma';
+import { prismaClient } from 'fixitpdf-shared';
 import { Prisma } from '@prisma/client';
 import { BaseResponse } from '@/types/responses';
 
@@ -22,7 +22,7 @@ export async function POST(): Promise<NextResponse<CreateUserResponse>> {
     const randomName = `User${Math.floor(Math.random() * 10000)}`;
 
     // Create a new user with random data
-    const newUser = await prisma.user.create({
+    const newUser = await prismaClient.user.create({
       data: {
         email: randomEmail,
         name: randomName,

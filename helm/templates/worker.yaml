@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fixitpdf.fullname" . }}-worker
+  labels:
+    app: {{ include "fixitpdf.fullname" . }}-worker
+spec:
+  replicas: {{ .Values.worker.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "fixitpdf.fullname" . }}-worker
+  template:
+    metadata:
+      labels:
+        app: {{ include "fixitpdf.fullname" . }}-worker
+      annotations:
+        prometheus.io/scrape: "false"
+        prometheus.io/path: /metrics
+        prometheus.io/port: "9090"
+        # Important to restart nodes whenever secrets/config change
+        checksum/config: "{{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}"
+    spec:
+      initContainers:
+        - name: "dbmigrate-wait"
+          image: "groundnuty/k8s-wait-for:1.3"
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          args: 
+          - "job"
+          - "{{ include "fixitpdf.fullname" . }}-dbmigrate-{{ .Release.Revision }}"
+      containers:
+        - name: {{ include "fixitpdf.fullname" . }}-worker
+          image: "{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          command: [ "npm", "run", "start", "-w", "packages/worker" ]
+          env:
+            - name: NODE_ENV
+              value: production
+          envFrom:
+            - secretRef:
+                name: {{ include "fixitpdf.fullname" . }}
