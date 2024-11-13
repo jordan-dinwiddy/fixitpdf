@@ -23,6 +23,8 @@ RUN npm install --production=false -w packages/shared -w packages/worker
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/packages/shared/node_modules ./packages/shared/node_modules
+COPY --from=deps /app/packages/worker/node_modules ./packages/worker/node_modules
 
 COPY ./package.json ./package-lock.json* ./
 COPY ./packages/worker/ ./packages/worker/
