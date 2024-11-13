@@ -33,6 +33,7 @@ interface PDFFile {
  * 
  * @param param0 
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const uploadFileToS3 = async ({ id, file } : {id: string, file: File }): Promise<void> => {
   // Step 1: Get the pre-signed URL from the backend
   const { data } = await apiClient.post("/api/utils/uploads", {
@@ -65,6 +66,7 @@ export default function App() {
 
   const mutation = useMutation({
     mutationFn: uploadFileToS3,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any, variables) => {
       console.log('Error uploading file:', error);
 
@@ -100,7 +102,7 @@ export default function App() {
       mutation.mutate({ id: pdfFile.id, file });
 
     });
-  }, [updateFile, mutation]);
+  }, [mutation]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
