@@ -99,6 +99,9 @@ jobs:
           APP_AWS_SECRET_ACCESS_KEY: ${{ secrets.APP_AWS_SECRET_ACCESS_KEY }}
           APP_AWS_REGION: ${{ secrets.APP_AWS_REGION }}
           APP_AWS_UPLOADS_BUCKET_NAME: ${{ secrets.APP_AWS_UPLOADS_BUCKET_NAME }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
         EOF
 
     - name: Deploy with Helm
