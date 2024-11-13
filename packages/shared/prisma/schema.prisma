@@ -30,3 +30,11 @@ model File {
   // To support soft-deletion
   deletedAt DateTime? 
 }
+
+model TestEvent {
+  id          String   @id @default(uuid())
+  createdAt   DateTime @default(now())
+  processedAt DateTime?
+  lagMs       Int?
+  name        String
+}
