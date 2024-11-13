@@ -93,9 +93,12 @@ jobs:
       run: |
         cat <<EOF > secrets.yaml
         secrets:
-          test_secret_key: "value123"
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           REDIS_URL: ${{ secrets.REDIS_URL }}
+          APP_AWS_ACCESS_KEY_ID: ${{ secrets.APP_AWS_ACCESS_KEY_ID }}
+          APP_AWS_SECRET_ACCESS_KEY: ${{ secrets.APP_AWS_SECRET_ACCESS_KEY }}
+          APP_AWS_REGION: ${{ secrets.APP_AWS_REGION }}
+          APP_AWS_UPLOADS_BUCKET_NAME: ${{ secrets.APP_AWS_UPLOADS_BUCKET_NAME }}
         EOF
 
     - name: Deploy with Helm
