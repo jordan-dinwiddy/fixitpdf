@@ -36,5 +36,7 @@ spec:
             - name: NODE_ENV
               value: production
           envFrom:
+            - configMapRef:
+                name: {{ include "fixitpdf.fullname" . }}-config
             - secretRef:
                 name: {{ include "fixitpdf.fullname" . }}

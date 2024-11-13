@@ -1,0 +1,3 @@
+appConfig:
+  APP_AWS_UPLOADS_BUCKET_NAME: "fixitpdf-uploads"
+  NEXTAUTH_URL: "https://fixitpdf.com"

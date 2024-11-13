@@ -25,6 +25,9 @@ ingress:
     - "fixitpdf.com"
     - "www.fixitpdf.com"
 
+# To be given to Helm during install/upgrade by config.[environment].yaml
+appConfig:
+
 podAnnotations: {}
 
 resources: {}
