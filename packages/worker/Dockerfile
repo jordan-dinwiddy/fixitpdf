@@ -22,6 +22,10 @@ RUN npm install --production=false -w packages/shared -w packages/worker
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
+
+# Copy the node_modules from root and sub projects. We don't know for sure if the sub projects
+# have node_modules, so we use a wildcard to copy them if they exist. (Sub projects only need
+# their own node_modules if there's a version conflict with root).
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/packages/shared/node_modules* ./packages/shared/node_modules
 COPY --from=deps /app/packages/worker/node_modules* ./packages/worker/node_modules
