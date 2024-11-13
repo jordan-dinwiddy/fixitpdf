@@ -3,10 +3,10 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { v4 as uuid } from "uuid";
 
 const s3Client = new S3Client({
-  region: process.env.AWS_REGION,
+  region: process.env.APP_AWS_REGION,
   credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
+    accessKeyId: process.env.APP_AWS_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.APP_AWS_SECRET_ACCESS_KEY || "",
   },
 });
 
@@ -19,7 +19,7 @@ const generateFileUploadUrl = async (fileType: string): Promise<GenerateFileUplo
   const uniqueFileName = `${uuid()}.pdf`;
 
   const command = new PutObjectCommand({
-    Bucket: process.env.AWS_UPLOADS_BUCKET_NAME,
+    Bucket: process.env.APP_AWS_UPLOADS_BUCKET_NAME,
     Key: uniqueFileName,
     ContentType: fileType,
   });
