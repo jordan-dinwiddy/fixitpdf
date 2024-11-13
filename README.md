@@ -36,7 +36,7 @@ docker push 509072450144.dkr.ecr.us-east-1.amazonaws.com/fixitpdf/web:latest
 ## Helm
 ### Testing Helm rendering
 ```
-helm install --dry-run fixitpdf ./helm -f secrets.yaml
+helm install --dry-run fixitpdf ./helm -f ./helm/config/config.prod.yaml -f secrets.yaml
 ```
 
 
