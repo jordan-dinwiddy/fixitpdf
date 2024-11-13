@@ -51,8 +51,6 @@ const uploadFileToS3 = async ({ id, file }: { id: string, file: File }): Promise
 
 export default function App() {
   const [files, setFiles] = useState<PDFFile[]>([])
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
   const { data: session } = useSession();
 
   const updateFile = useCallback((fileId: string, updates: object) => {

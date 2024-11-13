@@ -1,9 +1,8 @@
-import NextAuth from "next-auth";
-import { NextAuthOptions, Session, User } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import GoogleProvider from "next-auth/providers/google";
-import { prismaClient, Prisma } from 'fixitpdf-shared';
+import { prismaClient } from 'fixitpdf-shared';
+import NextAuth, { NextAuthOptions, Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
+import GoogleProvider from "next-auth/providers/google";
 
 
 export const authOptions: NextAuthOptions = {
