@@ -107,6 +107,7 @@ jobs:
     - name: Deploy with Helm
       run: |
         helm upgrade fixitpdf ./helm \
+          -f ./helm/config/config.prod.yaml \
           -f ./secrets.yaml \
           --namespace fixitpdf \
           --set web.image.tag=${{ github.sha }} \
