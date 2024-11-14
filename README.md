@@ -135,7 +135,12 @@ kubectl create rolebinding default-pod-reader --role=pod-reader --serviceaccount
 
 # Notes
 ```
-docker build -f packages/worker/Dockerfile -t fixitpdf/worker .
+# Building the worker is a little different because we have to compile the pdf_annotation_binary and the
+# process for that varies a little based on arm64 (Mac silicon) vs amd64. See Dockerfile for more info
+# More details here: https://chatgpt.com/share/67367d79-501c-8006-8aec-2164ef3600f7
+docker build --build-arg TARGETPLATFORM=linux/arm64 -f packages/worker/Dockerfile -t fixitpdf/worker .
+OR
+docker build --build-arg TARGETPLATFORM=linux/amd64 -f packages/worker/Dockerfile -t fixitpdf/worker .
 docker run -it fixitpdf/worker sh
 
 

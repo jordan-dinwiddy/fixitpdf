@@ -59,7 +59,7 @@ jobs:
         ECR_REPOSITORY: fixitpdf/worker
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -f packages/worker/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker build --build-arg TARGETPLATFORM=linux/amd64  -f packages/worker/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
   deploy:

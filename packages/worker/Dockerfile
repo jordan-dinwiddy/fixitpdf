@@ -6,6 +6,34 @@ FROM node:18-alpine AS base
 
 # This deps image has all the node_modules installed (including dev dependencies) and only 
 # needs to be rebuilt when the package.json or package-lock.json files change.
+
+#
+# Install Rust tools for building the Rust binary
+#
+FROM rust:1.77 AS rust_builder
+
+# Set up working directory and copy Rust project files
+WORKDIR /pdf_annotation_fix
+COPY ./packages/worker/pdf_annotation_fix ./
+
+# Specifically adding the musl target statically links musl to the binary (which is needed because we're using alpine)
+# "The issue here is likely due to incompatibility between the pdf_annotation_fix binary and the node:18-alpine base 
+#  image in your runner container. Alpine Linux uses musl as its standard C library, while the Rust binary is dynamically
+#  linked against glibc, which is not available in Alpine. Here are a few solutions to address this"
+
+# Install both musl targets for x86_64 and aarch64
+RUN rustup target add x86_64-unknown-linux-musl aarch64-unknown-linux-musl
+
+# Build for the native platform of each architecture at runtime
+ARG TARGETPLATFORM
+RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+        cargo build --release --target aarch64-unknown-linux-musl; \
+        cp target/aarch64-unknown-linux-musl/release/pdf_annotation_fix pdf_annotation_fix; \
+    else \
+        cargo build --release --target x86_64-unknown-linux-musl; \
+        cp target/x86_64-unknown-linux-musl/release/pdf_annotation_fix pdf_annotation_fix; \
+    fi
+
 FROM base AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
@@ -42,6 +70,10 @@ RUN npm run build -w packages/shared -w packages/worker
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
+
+# Copy the Rust binary from the rust_builder stage
+COPY --from=rust_builder /pdf_annotation_fix/pdf_annotation_fix /usr/local/bin/pdf_annotation_fix
+# Copy the appropriate binary based on the platform
 
 COPY --from=builder /app/package.json /app/package-lock.json* ./
 COPY --from=builder /app/packages/worker ./packages/worker/
