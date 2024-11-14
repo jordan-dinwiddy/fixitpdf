@@ -11,37 +11,45 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { apiClient } from "@/lib/axios"
-import { useMutation } from "@tanstack/react-query"
+import { useQueryClient } from "@tanstack/react-query"
+import { CreateUserFileRequest, CreateUserFileResponse, CreateUserFileResponseData, UserFile } from "fixitpdf-shared"
 import { CreditCard, Download, FileText, Loader, LogOut, Stethoscope, Upload, User } from 'lucide-react'
 import { signIn, signOut, useSession } from "next-auth/react"
 import { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
+import { useGetUserFiles } from '../lib/hooks/useGetUserFiles'
 
-type FileStatus = 'uploading' | 'analyzing' | 'fixable' | 'fixing' | 'fixed';
+interface RequestFileCreationResult {
+  file: File,
+  response: CreateUserFileResponseData,
+};
 
-interface PDFFile {
-  id: string
-  name: string
-  status: FileStatus
-  issuesCount?: number
-}
+const startFileProcessing = async (fileId: string): Promise<void> => {
+  await apiClient.post(`/api/user/files/${fileId}/process`);
+};
 
-/**
- * Uploads a given file to S3. First calls the backend to get a pre-signed URL.
- * 
- * @param param0 
- */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const uploadFileToS3 = async ({ id, file }: { id: string, file: File }): Promise<void> => {
-  // Step 1: Get the pre-signed URL from the backend
-  const { data } = await apiClient.post("/api/utils/uploads", {
-    filename: file.name,
+const requestFileCreation = async (file: File): Promise<RequestFileCreationResult> => {
+  const createFileRequest: CreateUserFileRequest = {
+    fileName: file.name,
     fileType: file.type,
-  });
+  };
 
-  // Step 2: Use the pre-signed URL to upload the file directly to S3
-  await apiClient.put(data.url, file, {
+  const { data } = await apiClient.post<CreateUserFileResponse>("/api/user/files", createFileRequest);
+
+  if (!data.success || !data.data) {
+    throw new Error(data.error || "An error occurred while creating the file");
+  }
+
+  return {
+    file,
+    response: data.data,
+  }
+};
+
+const uploadFileToS3 = async (requestFileCreationResult: RequestFileCreationResult): Promise<void> => {
+  const { file, response: createFileResponse } = requestFileCreationResult;
+  await apiClient.put(createFileResponse.uploadUrl, file, {
     headers: {
       "Content-Type": file.type,
     },
@@ -49,57 +57,84 @@ const uploadFileToS3 = async ({ id, file }: { id: string, file: File }): Promise
 };
 
 
+/**
+ * The main thing. 
+ * 
+ * @returns 
+ */
 export default function App() {
-  const [files, setFiles] = useState<PDFFile[]>([])
   const { data: session } = useSession();
-
-  const updateFile = useCallback((fileId: string, updates: object) => {
-    setFiles(prevFiles =>
-      prevFiles.map(file =>
-        file.id === fileId ? { ...file, ...updates } : file
-      )
-    )
-  }, []);
-
-  const mutation = useMutation({
-    mutationFn: uploadFileToS3,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    onError: (error: any, variables) => {
-      console.log('Error uploading file:', error);
-
-      const { id } = variables;
-      updateFile(id, { status: 'failed' });
-    },
-    onSuccess: (data, variables) => {
-      console.log('Success uploading file:');
-      console.log(variables);
-
-
-      const { id } = variables;
-      updateFile(id, { status: 'analyzing' });
-
-      // Simulate analysis
-      setTimeout(() => {
-        updateFile(id, { status: 'fixable', issuesCount: Math.floor(Math.random() * 10) + 1 });
-      }, 5000)
-    },
-
+  const [filesPollingEnabled, setFilesPollingEnabled] = useState(true);
+  const { data: files, isLoading: isFilesLoading, isError: isFilesError } = useGetUserFiles({
+    enabled: !!session && filesPollingEnabled,
+    refreshInterval: 5000,
   });
+  const queryClient = useQueryClient();
 
+  /**
+   * Delete a file and refresh.
+   */
+  const deleteFile = useCallback(async (fileId: string) => {
+    await apiClient.delete(`/api/user/files/${fileId}`);
+
+    queryClient.invalidateQueries({ queryKey: ['userFiles'] });
+
+  }, [queryClient]);
+
+  const optimisticFileCreation = useCallback((file: File) => {
+    // Snapshot previous state for rollback
+    const previousFiles = queryClient.getQueryData<UserFile[]>(['userFiles']);
+    console.log('previousFiles', previousFiles);
+
+    const newUserFile: UserFile = {
+      id: uuidv4(),
+      name: file.name,
+      state: 'uploading',
+      issueCount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    // Optimistically update cache
+    queryClient.setQueryData<UserFile[]>(
+      ['userFiles'],
+      (old?: UserFile[]) => [newUserFile, ...(old || [])]
+    );
+  }, [queryClient]);
+
+  /**
+   * Handle file drop event.
+   * 
+   * Pay careful attention to the following:
+   *  - Because we want the files list to be updated immediately, we pause live refresh and mutate local state first.
+   *  - Once we know server state is updated, we re-enable live refresh.
+   *  - We then trigger the upload process asynchronously.
+   */
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
+    const promises: Promise<RequestFileCreationResult>[] = [];
+
+    setFilesPollingEnabled(false);
+
     acceptedFiles.forEach(file => {
-      const pdfFile: PDFFile = {
-        id: uuidv4(),
-        name: file.name,
-        status: 'uploading'
-      }
-      setFiles(prevFiles => [...prevFiles, pdfFile])
+      // Immediately update the client cache
+      optimisticFileCreation(file);
 
-      // Upload the file to S3.. This happens async
-      mutation.mutate({ id: pdfFile.id, file });
-
+      // Request file creation and upload
+      promises.push(requestFileCreation(file));
     });
-  }, [mutation]);
+
+    const fileCreationResults = await Promise.all(promises);
+
+    setFilesPollingEnabled(true);
+
+    // Kick off all uploads async without blocking.
+    // TODO: Handle failures (because otherwise the file will get stuck in the 'uploading' state)
+    fileCreationResults.forEach(async (fileCreationResult) => {
+      await uploadFileToS3(fileCreationResult);
+      await startFileProcessing(fileCreationResult.response.file.id);
+      queryClient.invalidateQueries({ queryKey: ['userFiles'] });
+    });
+  }, [optimisticFileCreation, queryClient]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -109,14 +144,7 @@ export default function App() {
 
   const handleFix = useCallback((id: string) => {
     console.log(`Fixing file with id: ${id}`);
-
-    updateFile(id, { status: 'fixing' });
-
-    // Simulate fixing process
-    setTimeout(() => {
-      updateFile(id, { status: 'fixed' });
-    }, 3000);
-  }, [updateFile]);
+  }, []);
 
   const handleDownload = useCallback((id: string) => {
     // Implement download logic here
@@ -196,12 +224,22 @@ export default function App() {
 
           <Card className="bg-white/90 backdrop-blur-sm shadow-xl transition-all duration-300 hover:shadow-2xl">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold text-purple-700">Your Files ({files.length})</CardTitle>
+              <CardTitle className="text-2xl font-bold text-purple-700">Your Files ({files?.length || 0})</CardTitle>
             </CardHeader>
             <CardContent>
-              {files.length === 0 ? (
+              {isFilesLoading && (
+                <div className="flex justify-center text-gray-500">
+                  <Loader className="animate-spin h-8 w-8 mr-2" />
+                </div>
+              )}
+
+              {isFilesError && <p className="text-center text-red-500">An error occurred while fetching files</p>}
+
+              {!isFilesLoading && !isFilesError && files?.length === 0 && (
                 <p className="text-center text-gray-500">No PDFs uploaded... yet</p>
-              ) : (
+              )}
+
+              {!isFilesLoading && !isFilesError && files && files?.length > 0 && (
                 <ul className="space-y-4">
                   {files.map((file) => (
                     <li key={file.id} className="flex items-center justify-between p-4 bg-purple-50 rounded-lg transition-all duration-300 hover:bg-purple-100">
@@ -210,22 +248,22 @@ export default function App() {
                         <span className="font-medium text-gray-700">{file.name}</span>
                       </div>
                       <div className="flex items-center space-x-2">
-                        {file.status === 'uploading' && (
+                        {file.state === 'uploading' && (
                           <span className="text-gray-500 flex items-center">
                             <Loader className="animate-spin h-4 w-4 mr-2" />
                             Uploading...
                           </span>
                         )}
-                        {file.status === 'analyzing' && (
+                        {file.state === 'processing' && (
                           <span className="text-blue-500 flex items-center">
                             <Loader className="animate-spin h-4 w-4 mr-2" />
                             Analyzing...
                           </span>
                         )}
-                        {file.status === 'fixable' && (
+                        {file.state === 'processed' && (
                           <>
                             <span className="text-orange-500">
-                              Found {file.issuesCount} {file.issuesCount === 1 ? 'issue' : 'issues'} to fix
+                              Found {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'} to fix
                             </span>
                             <Button
                               onClick={() => handleFix(file.id)}
@@ -236,16 +274,16 @@ export default function App() {
                             </Button>
                           </>
                         )}
-                        {file.status === 'fixing' && (
+                        {file.state === 'fixing' && (
                           <span className="text-blue-500 flex items-center">
                             <Loader className="animate-spin h-4 w-4 mr-2" />
                             Fixing...
                           </span>
                         )}
-                        {file.status === 'fixed' && (
+                        {file.state === 'fixed' && (
                           <>
                             <span className="text-green-500">
-                              {file.issuesCount} {file.issuesCount === 1 ? 'issue' : 'issues'} successfully fixed!
+                              {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'} successfully fixed!
                             </span>
                             <Button
                               onClick={() => handleDownload(file.id)}
@@ -257,6 +295,13 @@ export default function App() {
                             </Button>
                           </>
                         )}
+                        <Button
+                          onClick={() => deleteFile(file.id)}
+                          variant="outline"
+                          className="bg-gray-200 text-gray-800 hover:bg-gray-300 transition-all duration-300"
+                        >
+                          X
+                        </Button>
                       </div>
                     </li>
                   ))}

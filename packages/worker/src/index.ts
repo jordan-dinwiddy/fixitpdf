@@ -17,6 +17,8 @@ const defaultQueueWorker = new Worker(
 
     if (job.name === 'testEventJob') {
       await processTestEventJob(job.data);
+    } else if (job.name === 'processFileJob') {
+      await processFileJob(job.data);
     }
 
   },
@@ -28,14 +30,12 @@ defaultQueueWorker.on('failed', (job, err) => {
   console.error(`Job failed: ${job?.id}, Error: ${err.message}`);
 });
 
-console.log('BullMQ Worker is running...');
-
 console.log(`${new Date().toISOString()} - Worker is running...`);
 
 // Just print hell to the screen every 1 second
 setInterval(() => {
   console.log(`${new Date().toISOString()} - Hello from worker`);
-}, 1000);
+}, 10000);
 
 /**
  * Process the test event job.
@@ -47,6 +47,32 @@ async function processTestEventJob(data: any): Promise<void> {
 
   const { testeEventId } = data;
   await touchTestEvent(testeEventId);
+}
+
+async function processFileJob(data: any): Promise<void> {
+  const { fileId } = data;
+
+  console.log(`Processing file job for file ID: ${fileId}`);
+
+  // Generate a random number between 1 and 10
+  const randomDelaySecs = Math.floor(Math.random() * 10) + 1;
+
+  // Generate a random number of issues between 0 and 100
+  const issueCount = Math.floor(Math.random() * 100);
+
+  setTimeout(async () => {
+    await prismaClient.file.update({
+      where: {
+        id: fileId,
+      },
+      data: {
+        state: 'processed',
+        issueCount,
+      }
+    });
+
+    console.log(`File job for file ID ${fileId} completed`);
+  }, randomDelaySecs * 1000);
 }
 
 /**

@@ -11,3 +11,4 @@ export { prismaClient, Prisma };
 
 export { redisClient } from './redis';
 export * from './s3';
+export * from './types';

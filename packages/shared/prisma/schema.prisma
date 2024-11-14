@@ -68,9 +68,12 @@ model VerificationToken {
 
 model File {
   id       String @id @default(uuid())
-  url      String
+  name     String @default("Untitled")
+  state    String @default("uploading")
+  processedFileId String?
   userId   String
   user     User @relation(fields: [userId], references: [id])
+  issueCount Int @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
