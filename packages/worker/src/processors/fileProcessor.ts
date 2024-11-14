@@ -27,13 +27,14 @@ export async function processFileJob(data: any): Promise<void> {
     console.log(`Downloading file to ${originalFilePath}...`);
     await downloadFile(fileId, originalFilePath);
     const originalFileSize = await getFileSizeInKB(originalFilePath);
-    console.log(`File downloaded (${originalFileSize} KB) for file ID: ${fileId}`);
+    console.log(`File downloaded (${Math.round(originalFileSize)} KB) for file ID: ${fileId}`);
 
     // Process the file
     console.log(`Processing file and saving to ${fixedFilePath}...`);
     const { issueCount } = await processFile(originalFilePath, fixedFilePath);
     const processedFileSize = await getFileSizeInKB(fixedFilePath);
-    console.log(`File processed(${processedFileSize} KB) for file ID: ${fileId}`);
+    
+    console.log(`File processed (${Math.round(processedFileSize)} KB) for file ID: ${fileId}`);
 
     // Re-upload the fixed file to S3
     console.log('Uploading processed file...');
