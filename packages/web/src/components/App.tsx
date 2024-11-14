@@ -265,13 +265,16 @@ export default function App() {
                             <span className="text-orange-500">
                               Found {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'} to fix
                             </span>
-                            <Button
-                              onClick={() => handleFix(file.id)}
-                              variant="outline"
-                              className="bg-gray-200 text-gray-800 hover:bg-gray-300 transition-all duration-300"
-                            >
-                              Fix!
-                            </Button>
+
+                            {file.issueCount > 0 && (
+                              <Button
+                                onClick={() => handleFix(file.id)}
+                                variant="outline"
+                                className="bg-gray-200 text-gray-800 hover:bg-gray-300 transition-all duration-300"
+                              >
+                                Fix!
+                              </Button>
+                            )}
                           </>
                         )}
                         {file.state === 'fixing' && (

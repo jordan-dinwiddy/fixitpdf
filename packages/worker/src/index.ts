@@ -57,8 +57,8 @@ async function processFileJob(data: any): Promise<void> {
   // Generate a random number between 1 and 10
   const randomDelaySecs = Math.floor(Math.random() * 10) + 1;
 
-  // Generate a random number of issues between 0 and 100
-  const issueCount = Math.floor(Math.random() * 100);
+  // Generate a random number of issues between 0 and 20
+  const issueCount = Math.floor(Math.random() * 20);
 
   setTimeout(async () => {
     await prismaClient.file.update({
