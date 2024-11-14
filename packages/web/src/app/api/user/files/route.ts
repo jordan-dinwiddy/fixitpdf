@@ -18,6 +18,7 @@ const getFilesForUser = async(userId: string): Promise<UserFile[]> => {
   return files.map((file) => ({
     id: file.id,
     name: file.name,
+    fileType: file.fileType,
     state: file.state,
     issueCount: file.issueCount,
     createdAt: file.createdAt.toISOString(),
@@ -25,10 +26,11 @@ const getFilesForUser = async(userId: string): Promise<UserFile[]> => {
   }));
 };
 
-const createNewFileForUser = async(userId: string, fileName: string): Promise<UserFile> => {
+const createNewFileForUser = async(userId: string, fileName: string, fileType: string): Promise<UserFile> => {
   const newFile = await prismaClient.file.create({
     data: {
       name: fileName,
+      fileType: fileType,
       state: 'uploading',
       userId,
     },
@@ -37,6 +39,7 @@ const createNewFileForUser = async(userId: string, fileName: string): Promise<Us
   return {
     id: newFile.id,
     name: fileName,
+    fileType,
     state: 'uploading',
     issueCount: 0,
     createdAt: newFile.createdAt.toISOString(),
@@ -85,7 +88,7 @@ export async function POST(req: Request): Promise<NextResponse<CreateUserFileRes
 
   try {
     // Create the initial record in the database
-    const newFile = await createNewFileForUser(session.userId, fileName);
+    const newFile = await createNewFileForUser(session.userId, fileName, fileType);
 
     console.log("Generated new file", newFile);
 

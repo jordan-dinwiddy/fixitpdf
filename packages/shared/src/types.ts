@@ -4,6 +4,7 @@
 export interface UserFile {
   id: string;
   name: string;
+  fileType: string;
   state: string;
   issueCount: number;
   createdAt: string;
