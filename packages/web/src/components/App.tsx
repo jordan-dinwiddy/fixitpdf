@@ -89,6 +89,7 @@ export default function App() {
     const newUserFile: UserFile = {
       id: uuidv4(),
       name: file.name,
+      fileType: file.type,
       state: 'uploading',
       issueCount: 0,
       createdAt: new Date().toISOString(),

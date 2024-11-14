@@ -69,6 +69,7 @@ model VerificationToken {
 model File {
   id       String @id @default(uuid())
   name     String @default("Untitled")
+  fileType String @default("unknown")
   state    String @default("uploading")
   processedFileId String?
   userId   String
