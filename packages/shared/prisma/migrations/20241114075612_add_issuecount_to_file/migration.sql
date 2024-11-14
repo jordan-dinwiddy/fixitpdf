@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "File" ADD COLUMN     "issueCount" INTEGER NOT NULL DEFAULT 0;

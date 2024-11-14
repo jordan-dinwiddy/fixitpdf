@@ -1,8 +1,10 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { v4 as uuid } from "uuid";
 
-const s3Client = new S3Client({
+/**
+ * AWS S3 client. May be used elsewhere in the application.
+ */
+export const s3Client = new S3Client({
   region: process.env.APP_AWS_REGION,
   credentials: {
     accessKeyId: process.env.APP_AWS_ACCESS_KEY_ID || "",
@@ -10,28 +12,24 @@ const s3Client = new S3Client({
   },
 });
 
-interface GenerateFileUploadUrlResult {
-  url: string;
-  key: string;
-}
-
-const generateFileUploadUrl = async (fileType: string): Promise<GenerateFileUploadUrlResult> => {
-  const uniqueFileName = `${uuid()}.pdf`;
+/**
+ * 
+ * @param key - The key to use for the file upload (typically a UUID, no file extension)
+ * @param fileType - The file type e.g "application/pdf"
+ * @returns 
+ */
+export const generateFileUploadUrl = async (key: string, fileType: string): Promise<string> => {
 
   const command = new PutObjectCommand({
     Bucket: process.env.APP_AWS_UPLOADS_BUCKET_NAME,
-    Key: uniqueFileName,
+    Key: key,
     ContentType: fileType,
   });
 
   try {
-    const url = await getSignedUrl(s3Client, command, { expiresIn: 300 });
-    return { url, key: uniqueFileName };
+    return await getSignedUrl(s3Client, command, { expiresIn: 300 });
   } catch (error) {
     console.error("generateFileUploadUrl: Error generating pre-signed URL", error);
     throw new Error("Error generating pre-signed URL");
   }
 };
-
-export { s3Client, generateFileUploadUrl, GenerateFileUploadUrlResult};
-
