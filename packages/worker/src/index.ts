@@ -1,4 +1,3 @@
-// worker/emailWorker.ts
 import { Worker } from 'bullmq';
 import { redisClient } from 'fixitpdf-shared';
 import { processTestEventJob } from './processors/testProcessor';
@@ -7,6 +6,7 @@ import { processFileJob } from './processors/fileProcessor';
 console.log('Loading email worker...');
 console.log('Redis URL:', process.env.REDIS_URL);
 console.log(`${new Date().toISOString()} - Worker is running...`);
+
 // Define the worker logic
 const defaultQueueWorker = new Worker(
   'defaultQueue',
