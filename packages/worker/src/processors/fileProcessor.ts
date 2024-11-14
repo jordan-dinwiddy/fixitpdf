@@ -33,9 +33,9 @@ export async function processFileJob(data: any): Promise<void> {
     console.log(`Processing file and saving to ${fixedFilePath}...`);
     const processFileResult = await processFile(originalFilePath, fixedFilePath);
     console.log('Process file result:', processFileResult);
-    
+
     if (!processFileResult.success) {
-      console.error(`Error processing file: ${processFileResult.error}`);
+      console.error(`Error processing file: ${fileId}, marking as failed`);
 
       // Update the file record in the database
       await prismaClient.file.update({
