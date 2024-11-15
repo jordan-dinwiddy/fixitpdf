@@ -36,6 +36,14 @@ export interface CreateUserFileResponseData {
   uploadUrl: string;
 }
 
+export interface UserInfo {
+  id: string;
+  email: string;
+  creditBalance: number;
+}
+
+export type GetUserInfoResponse = BaseApiResponse<UserInfo>;
+
 export type CreateUserFileResponse = BaseApiResponse<CreateUserFileResponseData>;
 
 export type DeleteUserFileResponse = BaseApiResponse<void>;

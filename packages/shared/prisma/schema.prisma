@@ -22,6 +22,9 @@ model User {
   updatedAt DateTime @updatedAt
 
   files File[]
+
+  creditBalance  Int @default(10)
+  transactions   AccountBalanceTransaction[] 
 }
 
 // Required by nextAuth - https://authjs.dev/getting-started/adapters/prisma?_gl=1*g8pn6o*_gcl_au*MjEzNzE1NjE4Mi4xNzMxNTI1NDgz
@@ -87,4 +90,13 @@ model File {
 
   // To support soft-deletion
   deletedAt DateTime? 
+}
+
+model AccountBalanceTransaction {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  amount     Int      // Amount of the adjustment (can be positive or negative)
+  reason     String?  // Optional description of the adjustment
+  createdAt  DateTime @default(now())
 }
