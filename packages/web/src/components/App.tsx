@@ -1,5 +1,6 @@
 'use client'
 
+import { PurchaseFileConfirmationDialog } from '@/components/PurchaseFileConfirmationDialog'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -13,13 +14,13 @@ import {
 import { apiClient } from "@/lib/axios"
 import { useQueryClient } from "@tanstack/react-query"
 import { CreateUserFileRequest, CreateUserFileResponse, CreateUserFileResponseData, PurchaseUserFileResponse, UserFile } from "fixitpdf-shared"
-import { CreditCard, Download, FileText, Loader, LogOut, Stethoscope, Upload, User } from 'lucide-react'
+import { CreditCard, FileText, Loader, LogOut, Stethoscope, Upload, User } from 'lucide-react'
 import { signIn, signOut, useSession } from "next-auth/react"
 import { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import { useGetUserFiles } from '../lib/hooks/useGetUserFiles'
-import { PurchaseFileConfirmationDialog } from '@/components/PurchaseFileConfirmationDialog';
+import { DownloadFileButton } from "./DownloadFileButton"
 
 interface RequestFileCreationResult {
   file: File,
@@ -148,11 +149,6 @@ export default function App() {
     accept: { 'application/pdf': ['.pdf'] },
     multiple: true
   });
-
-  const handleDownload = useCallback((id: string) => {
-    // Implement download logic here
-    console.log(`Downloading file with id: ${id}`)
-  }, []);
 
   const purchaseFile = useCallback(async (file: UserFile): Promise<boolean> => {
     console.log(`Purchasing file with id: ${file.id}`);
@@ -308,14 +304,7 @@ export default function App() {
                             <span className="text-green-500">
                               {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'} resolved!
                             </span>
-                            <Button
-                              onClick={() => handleDownload(file.id)}
-                              variant="outline"
-                              className="bg-gray-200 text-gray-800 hover:bg-gray-300 transition-all duration-300"
-                            >
-                              <Download className="h-4 w-4 mr-2" />
-                              Download
-                            </Button>
+                            <DownloadFileButton userFile={file} />
                           </>
                         )}
                         <Button

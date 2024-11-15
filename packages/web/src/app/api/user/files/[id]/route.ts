@@ -1,20 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prismaClient } from 'fixitpdf-shared';
+import { DeleteUserFileResponse, prismaClient } from 'fixitpdf-shared';
 
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+interface DeleteUserFileParams {
+  id: string;
+}
+
+/**
+ * Delete a given file.
+ * 
+ * @param req 
+ * @param param1 
+ * @returns 
+ */
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<DeleteUserFileParams> },
+): Promise<NextResponse<DeleteUserFileResponse>> {
   const { id: fileId } = await params;
   
   try {
-    // Update the file's state to 'processing'
-    const updatedFile = await prismaClient.file.update({
+    // Soft delete the file
+    await prismaClient.file.update({
       where: { id: fileId },
       data: { deletedAt: new Date() },
     });
 
-    // Return the updated file data
-    return NextResponse.json(updatedFile);
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error updating file state:', error);
-    return NextResponse.json({ error: 'File not found or could not be updated' }, { status: 404 });
+    return NextResponse.json({ success: false, error: 'File not found or could not be updated' }, { status: 404 });
   }
 }

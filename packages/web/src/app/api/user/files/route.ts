@@ -4,6 +4,13 @@ import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 import { UserFile } from 'fixitpdf-shared';
 
+/** 
+ * API routes for managing files for the current user.
+ * 
+ * - GET /api/user/files
+ * - POST /api/user/files
+ */
+
 const getFilesForUser = async(userId: string): Promise<UserFile[]> => {
   const files = await prismaClient.file.findMany({
     where: {
@@ -96,12 +103,9 @@ export async function POST(req: Request): Promise<NextResponse<CreateUserFileRes
     // Create the initial record in the database
     const newFile = await createNewFileForUser(session.userId, fileName, fileType);
 
-    console.log("Generated new file", newFile);
-
     // Generate a pre-signed URL for the file upload (the URL will create a new file with the key being the file ID)
     const uploadUrl = await generateFileUploadUrl(newFile.id, fileType);
 
-    //return NextResponse.json({ url, key }, { status: 200 });
     return NextResponse.json({ 
       success: true,
       data: {

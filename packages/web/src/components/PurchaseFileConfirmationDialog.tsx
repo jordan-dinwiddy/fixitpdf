@@ -2,14 +2,13 @@ import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
+  DialogTitle
 } from "@/components/ui/dialog"
 import { UserFile } from "fixitpdf-shared"
-import { useEffect, useState } from "react"
 import { Loader2 } from 'lucide-react'
+import { useEffect, useState } from "react"
 
 interface PurchaseFileConfirmationDialogProps {
   open: boolean

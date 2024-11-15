@@ -1,14 +1,22 @@
 import { prismaClient, PurchaseUserFileResponse } from 'fixitpdf-shared';
 import { NextRequest, NextResponse } from 'next/server';
 
+interface PurchaseUserFileParams {
+  id: string;
+};
+
 /**
- * Purchase the given file.
+ * Purchase the given file. A file can be purchased after processing and costs a certain amount of credits. A file
+ * can only be downloaded after it has been purchased.
  * 
  * @param req 
  * @param param1 
  * @returns 
  */
-export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }): Promise<NextResponse<PurchaseUserFileResponse>> {
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<PurchaseUserFileParams> },
+): Promise<NextResponse<PurchaseUserFileResponse>> {
   const { id: fileId } = await params;
 
   // 1. Load the file and check it's in the state 'processed' and the cost to purchase it. 
