@@ -54,7 +54,7 @@ export async function POST(
 
     return NextResponse.json({ success: true });
 
-  } catch (e) {
+  } catch {
     console.error(`Unable to complete purchase purchase of file ${fileId}. Insufficient balance maybe?`);
 
     // TODO 15Nov24: Something really weird happens here in `npm run dev` where the error cannot be referenced without

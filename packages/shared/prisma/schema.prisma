@@ -23,7 +23,7 @@ model User {
 
   files File[]
 
-  creditBalance  Int @default(0)
+  creditBalance  Int @default(10)
   transactions   AccountBalanceTransaction[] 
 }
 

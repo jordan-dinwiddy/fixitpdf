@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { apiClient } from "@/lib/axios"
+import { useGetUserInfo } from '@/lib/hooks/useGetUserInfo'
 import { TooltipProvider } from '@radix-ui/react-tooltip'
 import { useQueryClient } from "@tanstack/react-query"
 import { CreateUserFileRequest, CreateUserFileResponse, CreateUserFileResponseData, PurchaseUserFileResponse, UserFile } from "fixitpdf-shared"
@@ -69,6 +70,7 @@ const uploadFileToS3 = async (requestFileCreationResult: RequestFileCreationResu
  * @returns 
  */
 export default function App() {
+  const queryClient = useQueryClient();
   const { data: session, status: sessionStatus } = useSession();
   const [fileToPurchase, setFileToPurchase] = useState<UserFile | null>(null);
   const [filesPollingEnabled, setFilesPollingEnabled] = useState(true);
@@ -76,7 +78,12 @@ export default function App() {
     enabled: !!session && filesPollingEnabled,
     refreshInterval: 5000,
   });
-  const queryClient = useQueryClient();
+
+  const { data: userInfo } = useGetUserInfo({
+    enabled: !!session,
+    refreshInterval: 30000,
+  });
+
 
   /**
    * Delete a file and refresh.
@@ -163,6 +170,8 @@ export default function App() {
       return false;
     }
 
+    queryClient.invalidateQueries({ queryKey: ['userInfo'] });
+
     // Block for a few seconds
     await new Promise((resolve) => setTimeout(resolve, 2000));
     console.log(`File purchased: ${file.id}`);
@@ -190,7 +199,13 @@ export default function App() {
           <Loader2 className="h-6 w-6 text-white animate-spin" />
         ) : session ? (
           <div className="flex items-center gap-4">
-            <span className="text-sm text-white">100 credits available</span>
+            <span className="text-sm text-white">
+              {userInfo ? (
+                <span>
+                  {userInfo?.creditBalance} credits available
+                </span>
+              ) : null}
+            </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0 overflow-hidden">

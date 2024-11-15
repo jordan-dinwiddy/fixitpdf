@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog"
+import { useGetUserInfo } from "@/lib/hooks/useGetUserInfo"
 import { UserFile } from "fixitpdf-shared"
 import { Loader2 } from 'lucide-react'
 import { useEffect, useState } from "react"
@@ -24,6 +25,11 @@ export const PurchaseFileConfirmationDialog = ({
   onProceed
 }: PurchaseFileConfirmationDialogProps) => {
   const [isLoading, setIsLoading] = useState(false)
+  
+  const { data: userInfo } = useGetUserInfo({
+    enabled: true,
+    refreshInterval: 30000,
+  });
 
   const handleProceed = async () => {
     setIsLoading(true)
@@ -36,7 +42,8 @@ export const PurchaseFileConfirmationDialog = ({
         onOpenChange(false);
       }
     } catch (e) {
-
+      console.log(e);
+      // Handle error
     } finally {
       setIsLoading(false);
     }
@@ -60,7 +67,7 @@ export const PurchaseFileConfirmationDialog = ({
             {userFile.name}
           </p>
           <p className="text-sm text-muted-foreground">
-            It will cost <strong>{userFile.costInCredits}</strong> credits (you have <strong>15</strong> available).
+            It will cost <strong>{userFile.costInCredits}</strong> credits (you have <strong>{userInfo?.creditBalance}</strong> available).
           </p>
         </div>
         )}
