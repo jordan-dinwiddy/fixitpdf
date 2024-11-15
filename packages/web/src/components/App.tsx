@@ -319,6 +319,11 @@ export default function App() {
                                 {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'} fixed!
                               </span>
                             )}
+                            {file.state === 'processing_failed' && (
+                              <span className="text-red-500 text-sm">
+                                Unable to fix
+                              </span>
+                            )}
                           </div>
 
 
