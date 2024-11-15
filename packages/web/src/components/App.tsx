@@ -293,41 +293,47 @@ export default function App() {
                           <FileText className="h-6 w-6 text-gray-500" />
                           <span className="font-medium text-gray-700 text-sm">{file.name}</span>
                         </div>
+
                         <div className="flex items-center space-x-2">
-                          {file.state === 'uploading' && (
-                            <span className="text-gray-500 flex items-center">
-                              <Loader2 className="animate-spin h-4 w-4 mr-2 text-sm" />
-                              Uploading...
-                            </span>
-                          )}
-                          {file.state === 'processing' && (
-                            <span className="text-blue-500 flex items-center">
-                              <Loader2 className="animate-spin h-4 w-4 mr-2 text-sm" />
-                              Analyzing...
-                            </span>
-                          )}
-                          {file.state === 'processed' && (
-                            <>
+                          {/* Status text */}
+                          <div className="flex items-center space-x-2">
+                            {file.state === 'uploading' && (
+                              <span className="text-gray-500 flex items-center text-sm">
+                                <Loader2 className="animate-spin h-4 w-4 mr-2 text-sm" />
+                                Uploading...
+                              </span>
+                            )}
+                            {file.state === 'processing' && (
+                              <span className="text-blue-500 flex items-center text-sm">
+                                <Loader2 className="animate-spin h-4 w-4 mr-2" />
+                                Analyzing...
+                              </span>
+                            )}
+                            {file.state === 'processed' && (
                               <span className="text-orange-500 text-sm">
-                                {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'}
+                                {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'} found
                               </span>
-
-                              {file.issueCount > 0 && (
-                                <FixFileButton onClick={() => setFileToPurchase(file)} />
-
-                              )}
-                            </>
-                          )}
-                          {file.state === 'purchased' && (
-                            <>
+                            )}
+                            {file.state === 'purchased' && (
                               <span className="text-green-500 text-sm">
-                                {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'} resolved!
+                                {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'} fixed!
                               </span>
+                            )}
+                          </div>
+
+
+                          { /* File actions */}
+                          <div className="flex items-center ">
+                            {file.state === 'processed' && file.issueCount > 0 && (
+                              <FixFileButton onClick={() => setFileToPurchase(file)} />
+                            )}
+                            {file.state === 'purchased' && (
                               <DownloadFileButton userFile={file} />
-                            </>
-                          )}
-                          <DeleteFileButton onClick={() => deleteFile(file.id)} />
+                            )}
+                            <DeleteFileButton onClick={() => deleteFile(file.id)} />
+                          </div>
                         </div>
+
                       </li>
                     ))}
                   </ul>
