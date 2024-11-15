@@ -170,11 +170,10 @@ export default function App() {
       return false;
     }
 
-    queryClient.invalidateQueries({ queryKey: ['userInfo'] });
-
     // Block for a few seconds
     await new Promise((resolve) => setTimeout(resolve, 2000));
     console.log(`File purchased: ${file.id}`);
+    queryClient.invalidateQueries({ queryKey: ['userInfo'] });
     queryClient.invalidateQueries({ queryKey: ['userFiles'] });
     return true;
   }, [queryClient]);
@@ -228,16 +227,12 @@ export default function App() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
                   <CreditCard className="mr-2 h-4 w-4" />
-                  <span>Billing</span>
+                  <span>Buy Credits</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut()}>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => signOut()}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Sign out</span>
                 </DropdownMenuItem>
