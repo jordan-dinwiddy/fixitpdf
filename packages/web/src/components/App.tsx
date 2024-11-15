@@ -12,15 +12,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { apiClient } from "@/lib/axios"
+import { TooltipProvider } from '@radix-ui/react-tooltip'
 import { useQueryClient } from "@tanstack/react-query"
 import { CreateUserFileRequest, CreateUserFileResponse, CreateUserFileResponseData, PurchaseUserFileResponse, UserFile } from "fixitpdf-shared"
-import { CreditCard, FileText, Loader, LogOut, Stethoscope, Upload, User } from 'lucide-react'
+import { CreditCard, FileText, Loader2, LogOut, Upload, User } from 'lucide-react'
 import { signIn, signOut, useSession } from "next-auth/react"
 import { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import { useGetUserFiles } from '../lib/hooks/useGetUserFiles'
+import { DeleteFileButton } from './DeleteFileButton'
 import { DownloadFileButton } from "./DownloadFileButton"
+import { FixFileButton } from './FixFileButton'
+
 
 interface RequestFileCreationResult {
   file: File,
@@ -65,9 +69,8 @@ const uploadFileToS3 = async (requestFileCreationResult: RequestFileCreationResu
  * @returns 
  */
 export default function App() {
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const [fileToPurchase, setFileToPurchase] = useState<UserFile | null>(null);
-
   const [filesPollingEnabled, setFilesPollingEnabled] = useState(true);
   const { data: files, isLoading: isFilesLoading, isError: isFilesError } = useGetUserFiles({
     enabled: !!session && filesPollingEnabled,
@@ -169,54 +172,80 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500">
-      <header className="bg-white/90 backdrop-blur-sm shadow-md">
-        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
-              <Stethoscope className="h-8 w-8 text-purple-600 mr-2" />
-              <h1 className="text-3xl font-bold text-purple-700">FixItPDF</h1>
-            </div>
-            <nav className="flex items-center space-x-4">
-              {session ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                      <User className="h-5 w-5" />
-                      <span className="sr-only">User menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>{session.user?.name}</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <User className="mr-2 h-4 w-4" />
-                      <span>Profile</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <CreditCard className="mr-2 h-4 w-4" />
-                      <span>Billing</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => signOut()}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button variant="ghost" onClick={() => signIn("google")}>
-                  Log in
-                </Button>
-              )}
-            </nav>
+      <header className="flex items-center justify-between p-4">
+
+        {/* Logo */}
+        <div className="flex items-center gap-2">
+          <div className="rounded-lg bg-white p-2">
+            <FileText className="h-6 w-6 text-purple-600" />
           </div>
+          <span className="text-xl font-bold text-white">FixItPDF</span>
         </div>
+
+        {/* User info */}
+        <div>
+
+        </div>
+        {sessionStatus === "loading" ? (
+          <Loader2 className="h-6 w-6 text-white animate-spin" />
+        ) : session ? (
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-white">100 credits available</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0 overflow-hidden">
+                  {session.user?.image ? (
+                    <img src={session.user?.image} alt="Profile" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="h-full w-full rounded-full bg-white flex items-center justify-center">
+                      <User className="h-5 w-5 text-gray-800" />
+                    </div>
+                  )}
+
+
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{session.user?.name}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{session.user?.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  <span>Billing</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => signOut()}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Sign out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        ) : (
+          <div className="flex items-center gap-4">
+            <Button onClick={() => signIn("google")} variant="outline" className="bg-white text-purple-600 hover:bg-purple-100">
+              Sign In
+            </Button>
+            <Button onClick={() => signIn("google")} className="bg-purple-700 text-white hover:bg-purple-800">
+              Sign Up
+            </Button>
+          </div>
+        )}
+
       </header>
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
 
         <div className="space-y-6">
-          <Card className="bg-white/90 backdrop-blur-sm shadow-xl transition-all duration-300 hover:shadow-2xl">
+          <Card className="shadow-xl transition-all duration-300 hover:shadow-2xl">
             <CardHeader>
               <CardTitle className="text-3xl font-bold text-center text-purple-700">Upload Your PDF</CardTitle>
             </CardHeader>
@@ -238,14 +267,14 @@ export default function App() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/90 backdrop-blur-sm shadow-xl transition-all duration-300 hover:shadow-2xl">
+          <Card className="transition-all duration-300 shadow-xl">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-purple-700">Your Files ({files?.length || 0})</CardTitle>
             </CardHeader>
             <CardContent>
               {isFilesLoading && (
                 <div className="flex justify-center text-gray-500">
-                  <Loader className="animate-spin h-8 w-8 mr-2" />
+                  <Loader2 className="animate-spin h-8 w-8 mr-2" />
                 </div>
               )}
 
@@ -256,77 +285,62 @@ export default function App() {
               )}
 
               {!isFilesLoading && !isFilesError && files && files?.length > 0 && (
-                <ul className="space-y-4">
-                  {files.map((file) => (
-                    <li key={file.id} className="flex items-center justify-between p-4 bg-purple-50 rounded-lg transition-all duration-300 hover:bg-purple-100">
-                      <div className="flex items-center space-x-3">
-                        <FileText className="h-6 w-6 text-purple-500" />
-                        <span className="font-medium text-gray-700">{file.name}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        {file.state === 'uploading' && (
-                          <span className="text-gray-500 flex items-center">
-                            <Loader className="animate-spin h-4 w-4 mr-2" />
-                            Uploading...
-                          </span>
-                        )}
-                        {file.state === 'processing' && (
-                          <span className="text-blue-500 flex items-center">
-                            <Loader className="animate-spin h-4 w-4 mr-2" />
-                            Analyzing...
-                          </span>
-                        )}
-                        {file.state === 'processed' && (
-                          <>
-                            <span className="text-orange-500">
-                              Found {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'} to fix
+                <TooltipProvider>
+                  <ul className="space-y-4">
+                    {files.map((file) => (
+                      <li key={file.id} className="flex items-center justify-between p-4 rounded-lg transition-all duration-300 border">
+                        <div className="flex items-center space-x-3">
+                          <FileText className="h-6 w-6 text-gray-500" />
+                          <span className="font-medium text-gray-700 text-sm">{file.name}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {file.state === 'uploading' && (
+                            <span className="text-gray-500 flex items-center">
+                              <Loader2 className="animate-spin h-4 w-4 mr-2 text-sm" />
+                              Uploading...
                             </span>
+                          )}
+                          {file.state === 'processing' && (
+                            <span className="text-blue-500 flex items-center">
+                              <Loader2 className="animate-spin h-4 w-4 mr-2 text-sm" />
+                              Analyzing...
+                            </span>
+                          )}
+                          {file.state === 'processed' && (
+                            <>
+                              <span className="text-orange-500 text-sm">
+                                {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'}
+                              </span>
 
-                            {file.issueCount > 0 && (
-                              <Button
-                                onClick={() => setFileToPurchase(file)}
-                                variant="outline"
-                                className="bg-gray-200 text-gray-800 hover:bg-gray-300 transition-all duration-300"
-                              >
-                                Fix!
-                              </Button>
-                            )}
-                          </>
-                        )}
-                        {file.state === 'fixing' && (
-                          <span className="text-blue-500 flex items-center">
-                            <Loader className="animate-spin h-4 w-4 mr-2" />
-                            Fixing...
-                          </span>
-                        )}
-                        {file.state === 'purchased' && (
-                          <>
-                            <span className="text-green-500">
-                              {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'} resolved!
-                            </span>
-                            <DownloadFileButton userFile={file} />
-                          </>
-                        )}
-                        <Button
-                          onClick={() => deleteFile(file.id)}
-                          variant="outline"
-                          className="bg-gray-200 text-gray-800 hover:bg-gray-300 transition-all duration-300"
-                        >
-                          X
-                        </Button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                              {file.issueCount > 0 && (
+                                <FixFileButton onClick={() => setFileToPurchase(file)} />
+
+                              )}
+                            </>
+                          )}
+                          {file.state === 'purchased' && (
+                            <>
+                              <span className="text-green-500 text-sm">
+                                {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'} resolved!
+                              </span>
+                              <DownloadFileButton userFile={file} />
+                            </>
+                          )}
+                          <DeleteFileButton onClick={() => deleteFile(file.id)} />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </TooltipProvider>
               )}
             </CardContent>
           </Card>
         </div>
       </main>
-      <PurchaseFileConfirmationDialog 
-        open={!!fileToPurchase} 
-        onOpenChange={() => { setFileToPurchase(null) }} 
-        userFile={fileToPurchase} 
+      <PurchaseFileConfirmationDialog
+        open={!!fileToPurchase}
+        onOpenChange={() => { setFileToPurchase(null) }}
+        userFile={fileToPurchase}
         onProceed={async () => { return fileToPurchase ? await purchaseFile(fileToPurchase) : false }}
       />
     </div>

@@ -1,8 +1,14 @@
 import { Button } from "@/components/ui/button"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from "@/components/ui/tooltip"
 import { apiClient } from "@/lib/axios"
 import { UserFile, UserFileDownloadResponse } from "fixitpdf-shared"
 import { Download, Loader2 } from 'lucide-react'
 import { useState } from "react"
+
 
 interface DownloadFileButtonProps {
   userFile: UserFile
@@ -61,15 +67,22 @@ export const DownloadFileButton: React.FC<DownloadFileButtonProps> = ({ userFile
     }
   };
 
+  // For Tooltips to work, we need to wrap the component in a TooltipProvider at a higher level
   return (
-    <Button
-      onClick={() => handleDownload(userFile.id)}
-      disabled={isLoading}
-      variant="default"
-      className="bg-gray-200 text-gray-800 hover:bg-gray-300 transition-all duration-300"
-    >
-      {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
-      Download
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          onClick={() => handleDownload(userFile.id)}
+          disabled={isLoading}
+          variant="ghost"
+          size="icon"
+        >
+          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Download</p>
+      </TooltipContent>
+    </Tooltip>
   );
 }
