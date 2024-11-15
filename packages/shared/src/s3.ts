@@ -82,16 +82,14 @@ export const uploadFile = async (key: string, filePath: string): Promise<void> =
 };
 
 /**
- * Gets the file size in kilobytes (KB) for the given file path.
+ * Gets the file size in bytes for the given file path.
  * 
  * @param filePath The path to the file
- * @returns The file size in KB
+ * @returns The file size in bytes
  */
-export const getFileSizeInKB = async (filePath: string): Promise<number> => {
+export const getFileSize = async (filePath: string): Promise<number> => {
   const stats = await stat(filePath);
-  const fileSizeInBytes = stats.size;
-  const fileSizeInKB = fileSizeInBytes / 1024;
-  return fileSizeInKB;
+  return stats.size;
 }
 
 

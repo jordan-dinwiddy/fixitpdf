@@ -1,0 +1,16 @@
+[package]
+name = "yew-app"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0"
+gloo-file = "0.2.3"
+html-escape = "0.2.9"
+js-sys = "0.3"
+pdf_fixing_lib = { path = "../pdf_fixing_lib" }
+web-sys = "0.3"
+wee_alloc = "0.4.5"
+yew = { version = "0.20", features = ["csr"] }
