@@ -7,10 +7,15 @@ export interface UserFile {
   fileType: string;
   state: string;
   issueCount: number;
+
+  // These fields are populated by processor. Until then they're null;
+  originalFileSizeBytes: number | null;
+  processedFileSizeBytes?: number | null;
+  costInCredits?: number | null;
+
   createdAt: string;
   updatedAt: string;
 }
-
 
 export interface BaseApiResponse<T> {
   success: boolean;

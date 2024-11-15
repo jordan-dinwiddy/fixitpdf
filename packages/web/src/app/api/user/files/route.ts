@@ -21,6 +21,9 @@ const getFilesForUser = async(userId: string): Promise<UserFile[]> => {
     fileType: file.fileType,
     state: file.state,
     issueCount: file.issueCount,
+    originalFileSizeBytes: file.originalFileSizeBytes || null,
+    processedFileSizeBytes: file.processedFileSizeBytes || null,
+    costInCredits: file.costInCredits || null,
     createdAt: file.createdAt.toISOString(),
     updatedAt: file.updatedAt.toISOString(),
   }));
@@ -42,6 +45,9 @@ const createNewFileForUser = async(userId: string, fileName: string, fileType: s
     fileType,
     state: 'uploading',
     issueCount: 0,
+    originalFileSizeBytes: null,
+    processedFileSizeBytes: null,
+    costInCredits: null,
     createdAt: newFile.createdAt.toISOString(),
     updatedAt: newFile.updatedAt.toISOString(),
   };

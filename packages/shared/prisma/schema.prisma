@@ -76,6 +76,12 @@ model File {
   user     User @relation(fields: [userId], references: [id])
   issueCount Int @default(0)
 
+  originalFileSizeBytes Int?
+  processedFileSizeBytes Int?
+
+  // How much it will cost the user in credits to process/fix this file.
+  costInCredits Int?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

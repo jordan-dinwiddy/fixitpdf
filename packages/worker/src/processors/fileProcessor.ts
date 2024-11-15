@@ -1,4 +1,4 @@
-import { downloadFile, getFileSizeInKB, prismaClient, uploadFile } from 'fixitpdf-shared';
+import { downloadFile, getFileSize, prismaClient, uploadFile } from 'fixitpdf-shared';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { promises as fs } from 'fs';
@@ -6,6 +6,22 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 
 const execAsync = promisify(exec);
+
+const determineCostInCredits = (originalFileSizeBytes: number): number => {
+  // Examples:
+  //  - [0 -> 5 MB]      => 3 credits
+  //  - [5 MB => 10 MB]  => 4 credits
+  //  - [10 MB -> 15 MB] => 5 credits
+  //  - [15 MB -> 20 MB] => 6 credits
+  //  - [20 MB -> 25 MB] => 7 credits
+  //  - [25 MB -> 30 MB] => 8 credits
+  //  - [30 MB -> 35 MB] => 9 credits
+  //  - [35 MB -> 40 MB] => 10 credits
+  //  - [40 MB -> 45 MB] => 11 credits
+  //  - [45 MB -> 50 MB] => 12 credits
+
+  return 2 + Math.ceil((originalFileSizeBytes / 1024 / 1024) / 5);
+}
 
 /**
  * Process the file job.
@@ -26,8 +42,8 @@ export async function processFileJob(data: any): Promise<void> {
     // Download the file from S3
     console.log(`Downloading file to ${originalFilePath}...`);
     await downloadFile(fileId, originalFilePath);
-    const originalFileSize = await getFileSizeInKB(originalFilePath);
-    console.log(`File downloaded (${Math.round(originalFileSize)} KB) for file ID: ${fileId}`);
+    const originalFileSizeBytes = await getFileSize(originalFilePath);
+    console.log(`File downloaded (${Math.round(originalFileSizeBytes / 1024)} KB) for file ID: ${fileId}`);
 
     // Process the file
     console.log(`Processing file and saving to ${fixedFilePath}...`);
@@ -52,8 +68,8 @@ export async function processFileJob(data: any): Promise<void> {
 
     console.log(`File processed successfully with ${processFileResult.issueCount} issues for file ID: ${fileId}`);
 
-    const processedFileSize = await getFileSizeInKB(fixedFilePath);
-    console.log(`Processed file size = ${Math.round(processedFileSize)} KB`);
+    const processedFileSizeBytes = await getFileSize(fixedFilePath);
+    console.log(`Processed file size = ${Math.round(processedFileSizeBytes / 1024)} KB`);
 
     // Re-upload the fixed file to S3
     console.log('Uploading processed file...');
@@ -67,6 +83,9 @@ export async function processFileJob(data: any): Promise<void> {
       data: {
         state: 'processed',
         issueCount: processFileResult.issueCount || 0,
+        originalFileSizeBytes,
+        processedFileSizeBytes,
+        costInCredits: determineCostInCredits(originalFileSizeBytes),
       }
     });
 
