@@ -1,6 +1,5 @@
 import { Worker } from 'bullmq';
 import { redisClient } from 'fixitpdf-shared';
-import { processTestEventJob } from './processors/testProcessor';
 import { processFileJob } from './processors/fileProcessor';
 
 console.log('Loading email worker...');
@@ -15,9 +14,6 @@ const defaultQueueWorker = new Worker(
     console.log(job.data);
 
     switch (job.name) {
-      case 'testEventJob':
-        await processTestEventJob(job.data);
-        break;
       case 'processFileJob':
         await processFileJob(job.data);
         break;
