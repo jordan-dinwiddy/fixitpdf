@@ -27,7 +27,7 @@ export const PurchaseFileConfirmationDialog = ({
   const [isLoading, setIsLoading] = useState(false)
   
   const { data: userInfo } = useGetUserInfo({
-    enabled: true,
+    enabled: open,
     refreshInterval: 30000,
   });
 
