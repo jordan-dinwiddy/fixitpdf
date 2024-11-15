@@ -14,6 +14,18 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 * Typescript, NextJS, React, Postgres, Prisma (ORM), Bull (async processing and queues);
 
 
+## TODO
+- [ ] Clicking 'Fix' will display a modal confirming cost and prompting user to proceed.
+  - [ ] Clicking proceed will first process the transaction (`POST /files/{id}/purchase`) and then
+  - [ ] Generate a download link for file (`POST /files{id}/download`) and trigger download
+  - [ ] Any other files in the files list that are in the correct state will also display a download button.
+- [ ] If user doesn't have sufficient credits they'll be prompted to purchase more.
+- [ ] Clicking 'sign-in' will display modal asking user to choose identity provider. 
+- [ ] Dragging/dropping file when not logged in will prompt user to choose identity provider.
+- [ ] New users get 5 credits. 
+- [ ] Users can purchase credits
+- [ ] Emails
+
 ## Building
 ```bash
 # Build

@@ -12,13 +12,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { apiClient } from "@/lib/axios"
 import { useQueryClient } from "@tanstack/react-query"
-import { CreateUserFileRequest, CreateUserFileResponse, CreateUserFileResponseData, UserFile } from "fixitpdf-shared"
+import { CreateUserFileRequest, CreateUserFileResponse, CreateUserFileResponseData, PurchaseUserFileResponse, UserFile } from "fixitpdf-shared"
 import { CreditCard, Download, FileText, Loader, LogOut, Stethoscope, Upload, User } from 'lucide-react'
 import { signIn, signOut, useSession } from "next-auth/react"
 import { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import { useGetUserFiles } from '../lib/hooks/useGetUserFiles'
+import { PurchaseFileConfirmationDialog } from '@/components/PurchaseFileConfirmationDialog';
 
 interface RequestFileCreationResult {
   file: File,
@@ -64,6 +65,8 @@ const uploadFileToS3 = async (requestFileCreationResult: RequestFileCreationResu
  */
 export default function App() {
   const { data: session } = useSession();
+  const [fileToPurchase, setFileToPurchase] = useState<UserFile | null>(null);
+
   const [filesPollingEnabled, setFilesPollingEnabled] = useState(true);
   const { data: files, isLoading: isFilesLoading, isError: isFilesError } = useGetUserFiles({
     enabled: !!session && filesPollingEnabled,
@@ -146,14 +149,27 @@ export default function App() {
     multiple: true
   });
 
-  const handleFix = useCallback((id: string) => {
-    console.log(`Fixing file with id: ${id}`);
-  }, []);
-
   const handleDownload = useCallback((id: string) => {
     // Implement download logic here
     console.log(`Downloading file with id: ${id}`)
   }, []);
+
+  const purchaseFile = useCallback(async (file: UserFile): Promise<boolean> => {
+    console.log(`Purchasing file with id: ${file.id}`);
+
+    const { data } = await apiClient.post<PurchaseUserFileResponse>(`/api/user/files/${file.id}/purchase`);
+
+    if (!data.success) {
+      console.error('Error purchasing file:', data.error);
+      return false;
+    }
+
+    // Block for a few seconds
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    console.log(`File purchased: ${file.id}`);
+    queryClient.invalidateQueries({ queryKey: ['userFiles'] });
+    return true;
+  }, [queryClient]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500">
@@ -272,7 +288,7 @@ export default function App() {
 
                             {file.issueCount > 0 && (
                               <Button
-                                onClick={() => handleFix(file.id)}
+                                onClick={() => setFileToPurchase(file)}
                                 variant="outline"
                                 className="bg-gray-200 text-gray-800 hover:bg-gray-300 transition-all duration-300"
                               >
@@ -287,10 +303,10 @@ export default function App() {
                             Fixing...
                           </span>
                         )}
-                        {file.state === 'fixed' && (
+                        {file.state === 'purchased' && (
                           <>
                             <span className="text-green-500">
-                              {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'} successfully fixed!
+                              {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'} resolved!
                             </span>
                             <Button
                               onClick={() => handleDownload(file.id)}
@@ -318,6 +334,12 @@ export default function App() {
           </Card>
         </div>
       </main>
+      <PurchaseFileConfirmationDialog 
+        open={!!fileToPurchase} 
+        onOpenChange={() => { setFileToPurchase(null) }} 
+        userFile={fileToPurchase} 
+        onProceed={async () => { return fileToPurchase ? await purchaseFile(fileToPurchase) : false }}
+      />
     </div>
   )
 }

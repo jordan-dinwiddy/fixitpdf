@@ -39,3 +39,5 @@ export interface CreateUserFileResponseData {
 export type CreateUserFileResponse = BaseApiResponse<CreateUserFileResponseData>;
 
 export type ListUserFilesResponse = BaseApiResponse<UserFile[]>;
+
+export type PurchaseUserFileResponse = BaseApiResponse<void>;
