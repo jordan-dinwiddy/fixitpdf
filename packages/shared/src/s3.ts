@@ -42,6 +42,27 @@ export const generateFileUploadUrl = async (key: string, fileType: string): Prom
 };
 
 /**
+ * Generate a signed URL for downloading a file from S3.
+ * 
+ * @param key 
+ * @returns 
+ */
+export const generateFileDownloadUrl = async (key: string, customFileName?: string): Promise<string> => {
+  const command = new GetObjectCommand({
+    Bucket: process.env.APP_AWS_UPLOADS_BUCKET_NAME,
+    Key: key,
+    ...(customFileName && { ResponseContentDisposition: `attachment; filename="${customFileName}"` }),
+  });
+
+  try {
+    return await getSignedUrl(s3Client, command, { expiresIn: 300 });
+  } catch (error) {
+    console.error("generateFileDownloadUrl: Error generating pre-signed URL", error);
+    throw new Error("Error generating pre-signed URL");
+  }
+};
+
+/**
  * Downloads a file from S3 and saves it directly to a file on the local filesystem.
  * 
  * @param bucket The S3 bucket name
