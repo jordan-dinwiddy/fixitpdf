@@ -28,13 +28,17 @@ export const PurchaseFileConfirmationDialog = ({
   const handleProceed = async () => {
     setIsLoading(true)
 
-    const result = await onProceed();
+    try {
+      const result = await onProceed();
 
-    setIsLoading(false);
+      // Close if successful
+      if (result) {
+        onOpenChange(false);
+      }
+    } catch (e) {
 
-    // Close if successful
-    if (result) {
-      onOpenChange(false);
+    } finally {
+      setIsLoading(false);
     }
   }
 

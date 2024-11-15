@@ -1,3 +1,4 @@
+import { adjustUserCreditBalance } from '@/services/user/userService';
 import { prismaClient, PurchaseUserFileResponse } from 'fixitpdf-shared';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -36,7 +37,11 @@ export async function POST(
       return NextResponse.json({ success: false, error: 'File is not in the correct state to be purchased' }, { status: 400 });
     }
 
-    console.log(`Deducting ${file.costInCredits} credits from user ${file.userId} and moving state to purchased ...`);
+    // Would like to wrap all of this in a transaction (incl the update file);
+    if (file.costInCredits && file.costInCredits > 0) {
+      console.log(`Deducting ${file.costInCredits} credits from user ${file.userId} and moving state to purchased ...`);
+      await adjustUserCreditBalance(file.userId, (-1 * file.costInCredits), `Purchased file ${fileId}`);
+    }
 
     await prismaClient.file.update({
       where: {
@@ -49,8 +54,13 @@ export async function POST(
 
     return NextResponse.json({ success: true });
 
-  } catch (error) {
-    console.error('Error updating file state:', error);
-    return NextResponse.json({ success: false, error: 'File not found or could not be updated' }, { status: 500 });
+  } catch (e) {
+    console.error(`Unable to complete purchase purchase of file ${fileId}. Insufficient balance maybe?`);
+
+    // TODO 15Nov24: Something really weird happens here in `npm run dev` where the error cannot be referenced without
+    // causing an error: 'TypeError: The "payload" argument must be of type object. Received null'. In a prod
+    // build though this works fine.
+    //console.error(e);
+    return NextResponse.json({ success: false, error: 'Unable to complete purchase purchase' }, { status: 500 });
   }
 }
