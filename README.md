@@ -166,3 +166,39 @@ docker build -f packages/web/Dockerfile -t fixitpdf/web .
 npm install
 npm run build -w packages/shared -w packages/web -w packages/worke
 ```
+
+# Login Providers
+This app supports both Google and Apple login/identity providers. 
+
+The Apple login setup was a bit trickier than Google. And since Apple doesn't support localhost
+redirect URI's, it won't work in development. 
+
+Apple also seems to require a new `APPLE_CLIENT_SECRET` being generated every 180 days. The commands
+to do that are below: 
+```
+jdinwiddy@JordansMBPM3Max web % npx auth add apple
+Setting up OAuth provider in your Next.js app (more info)...
+
+Add apple ID login support
+Setup URL: https://developer.apple.com/account/resources/identifiers/list/serviceId
+Callback URL (copied to clipboard): http://localhost:3000/api/auth/callback/apple
+_________________________
+
+Provider documentation: https://providers.authjs.dev/apple
+
+‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+Opening setup URL in your browser...
+
+? Paste Client ID: com.fixitpdf.web
+? Paste Key ID: 6P52J78ZFN
+? Paste Team ID: 2SWU7VRHYW
+? Path to Private Key /Users/jdinwiddy/Downloads/AuthKey_6P52J78ZFN.p8
+? Expires in days (default: 180) 180
+Updating environment variable file...
+📝 Created /Users/jdinwiddy/projects/fixitpdf/packages/web/.env.local with `AUTH_APPLE_ID`.
+Apple client secret generated. Valid until: Thu May 15 2025 12:11:57 GMT-0700 (Pacific Daylight Time)
+➕ Added `AUTH_APPLE_SECRET` to /Users/jdinwiddy/projects/fixitpdf/packages/web/.env.local.
+
+🎉 Done! You can now use this provider in your app.
+jdinwiddy@JordansMBPM3Max web % git status
+```
