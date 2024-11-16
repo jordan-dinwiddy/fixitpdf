@@ -54,12 +54,13 @@ export const LoginOrSignupDialog = ({
             className="bg-blue-500 hover:bg-blue-600 text-white w-full justify-center px-4 py-6 focus-visible:ring-0 focus-visible:ring-offset-0">
             {loadingProvider === 'microsoft' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <div>Continue with Microsoft</div>}
           </Button>
+          */}
           <Button
             onClick={() => handleLogin('apple')}
             disabled={loadingProvider !== null}
             className="bg-black hover:bg-gray-800 text-white w-full justify-center px-4 py-6 focus-visible:ring-0 focus-visible:ring-offset-0">
             {loadingProvider === 'apple' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <div>Continue with Apple</div>}
-          </Button> */}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
