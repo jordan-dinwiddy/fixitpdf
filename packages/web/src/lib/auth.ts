@@ -3,7 +3,14 @@ import { prismaClient } from 'fixitpdf-shared';
 import { NextAuthOptions, Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import GoogleProvider from "next-auth/providers/google";
+import AppleProvider from "next-auth/providers/apple";
 
+/**
+ * Apple resources: 
+ * https://next-auth.js.org/providers/apple
+ * https://developer.okta.com/blog/2019/06/04/what-the-heck-is-sign-in-with-apple
+ * 
+ */
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prismaClient),
   providers: [
@@ -11,6 +18,10 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
+    AppleProvider({
+      clientId: process.env.APPLE_CLIENT_ID!,
+      clientSecret: process.env.APPLE_CLIENT_SECRET!
+    })
   ],
 
   // Session.strategy can be 'jwt' or 'database'. 'database' is default.

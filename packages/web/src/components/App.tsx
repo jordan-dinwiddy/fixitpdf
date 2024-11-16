@@ -17,7 +17,7 @@ import { TooltipProvider } from '@radix-ui/react-tooltip'
 import { useQueryClient } from "@tanstack/react-query"
 import { CreateUserFileRequest, CreateUserFileResponse, CreateUserFileResponseData, PurchaseUserFileResponse, UserFile } from "fixitpdf-shared"
 import { CreditCard, FileText, Loader2, LogOut, Upload, User } from 'lucide-react'
-import { signIn, signOut, useSession } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 import { useCallback, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
@@ -25,7 +25,7 @@ import { useGetUserFiles } from '../lib/hooks/useGetUserFiles'
 import { DeleteFileButton } from './DeleteFileButton'
 import { DownloadFileButton } from "./DownloadFileButton"
 import { FixFileButton } from './FixFileButton'
-
+import { LoginOrSignupDialog } from './LoginOrSignupDialog'
 
 interface RequestFileCreationResult {
   file: File,
@@ -74,6 +74,7 @@ export default function App() {
   const { data: session, status: sessionStatus } = useSession();
   const [fileToPurchase, setFileToPurchase] = useState<UserFile | null>(null);
   const [filesPollingEnabled, setFilesPollingEnabled] = useState(true);
+  const [showLoginOrSignupDialog, setShowLoginOrSignupDialog] = useState(false);
   const { data: files, isLoading: isFilesLoading, isError: isFilesError } = useGetUserFiles({
     enabled: !!session && filesPollingEnabled,
     refreshInterval: 5000,
@@ -96,10 +97,6 @@ export default function App() {
   }, [queryClient]);
 
   const optimisticFileCreation = useCallback((file: File) => {
-    // Snapshot previous state for rollback
-    const previousFiles = queryClient.getQueryData<UserFile[]>(['userFiles']);
-    console.log('previousFiles', previousFiles);
-
     const newUserFile: UserFile = {
       id: uuidv4(),
       name: file.name,
@@ -131,6 +128,12 @@ export default function App() {
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const promises: Promise<RequestFileCreationResult>[] = [];
 
+    // User must be logged in to upload files
+    if (!session) {
+      setShowLoginOrSignupDialog(true);
+      return;
+    }
+
     setFilesPollingEnabled(false);
 
     acceptedFiles.forEach(file => {
@@ -152,10 +155,18 @@ export default function App() {
       await startFileProcessing(fileCreationResult.response.file.id);
       queryClient.invalidateQueries({ queryKey: ['userFiles'] });
     });
-  }, [optimisticFileCreation, queryClient]);
+  }, [optimisticFileCreation, queryClient, session, setShowLoginOrSignupDialog]);
+
+  const handleDropZoneClick = useCallback((event: React.MouseEvent) => {
+    if (!session) {
+      setShowLoginOrSignupDialog(true);
+      event.preventDefault(); // Prevent opening file picker
+    }
+  }, [setShowLoginOrSignupDialog, session]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    noClick: !session,  // Disable click opening file picker if not logged in
     accept: { 'application/pdf': ['.pdf'] },
     multiple: true
   });
@@ -241,10 +252,10 @@ export default function App() {
           </div>
         ) : (
           <div className="flex items-center gap-4">
-            <Button onClick={() => signIn("google")} variant="outline" className="bg-white text-purple-600 hover:bg-purple-100">
+            <Button onClick={() => setShowLoginOrSignupDialog(true)} variant="outline" className="bg-white text-purple-600 hover:bg-purple-100">
               Sign In
             </Button>
-            <Button onClick={() => signIn("google")} className="bg-purple-700 text-white hover:bg-purple-800">
+            <Button onClick={() => setShowLoginOrSignupDialog(true)} className="bg-purple-700 text-white hover:bg-purple-800">
               Sign Up
             </Button>
           </div>
@@ -255,13 +266,15 @@ export default function App() {
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
 
         <div className="space-y-6">
+
+          {/* Drag and Drop / Upload card */}
           <Card className="shadow-xl transition-all duration-300 hover:shadow-2xl">
             <CardHeader>
               <CardTitle className="text-3xl font-bold text-center text-purple-700">Upload Your PDF</CardTitle>
             </CardHeader>
             <CardContent>
               <div
-                {...getRootProps()}
+                {...getRootProps({ onClick: handleDropZoneClick })}
                 className={`border-2 border-dashed rounded-lg p-10 text-center cursor-pointer transition-all duration-300 ${isDragActive ? 'border-purple-500 bg-purple-100 scale-105' : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50'
                   }`}
               >
@@ -277,6 +290,7 @@ export default function App() {
             </CardContent>
           </Card>
 
+          {/* File list card */}
           <Card className="transition-all duration-300 shadow-xl">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-purple-700">Your Files ({files?.length || 0})</CardTitle>
@@ -290,7 +304,7 @@ export default function App() {
 
               {isFilesError && <p className="text-center text-red-500">An error occurred while fetching files</p>}
 
-              {!isFilesLoading && !isFilesError && files?.length === 0 && (
+              {!isFilesLoading && !isFilesError && (!files || files?.length === 0) && (
                 <p className="text-center text-gray-500">No PDFs uploaded... yet</p>
               )}
 
@@ -363,6 +377,12 @@ export default function App() {
         onOpenChange={() => { setFileToPurchase(null) }}
         userFile={fileToPurchase}
         onProceed={async () => { return fileToPurchase ? await purchaseFile(fileToPurchase) : false }}
+      />
+
+      <LoginOrSignupDialog
+        open={showLoginOrSignupDialog}
+        onOpenChange={(open) => { setShowLoginOrSignupDialog(open) }}
+        mode="login"
       />
     </div>
   )
