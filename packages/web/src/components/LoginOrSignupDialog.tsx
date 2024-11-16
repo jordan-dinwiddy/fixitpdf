@@ -34,10 +34,10 @@ export const LoginOrSignupDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] w-[95vw] max-w-[95vw] sm:w-full rounded-lg outline-none">
+      <DialogContent className="sm:max-w-[425px] w-[95vw] max-w-[95vw] sm:w-full rounded-lg outline-none bg-gradient-to-br from-purple-400 to-pink-500 text-white border-0">
         <DialogHeader className="space-y-3 mb-4">
           <DialogTitle className="text-2xl font-bold">Login or Sign Up</DialogTitle>
-          <DialogDescription className="text-base">
+          <DialogDescription className="text-base text-white">
             Choose a method to login or create an account.
           </DialogDescription>
         </DialogHeader>
@@ -45,7 +45,7 @@ export const LoginOrSignupDialog = ({
           <Button
             onClick={() => handleLogin('google')}
             disabled={loadingProvider !== null}
-            className="bg-red-500 hover:bg-red-600 text-white w-full justify-center px-4 py-6 focus-visible:ring-0 focus-visible:ring-offset-0">
+            className="bg-white hover:bg-purple-50 text-purple-700 w-full justify-center px-4 py-6 focus-visible:ring-0 focus-visible:ring-offset-0">
             {loadingProvider === 'google' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <div>Continue with Google</div>}
           </Button>
           {/* <Button
@@ -58,7 +58,7 @@ export const LoginOrSignupDialog = ({
           <Button
             onClick={() => handleLogin('apple')}
             disabled={loadingProvider !== null}
-            className="bg-black hover:bg-gray-800 text-white w-full justify-center px-4 py-6 focus-visible:ring-0 focus-visible:ring-offset-0">
+            className="bg-purple-600 hover:bg-purple-700 text-white w-full justify-center px-4 py-6 focus-visible:ring-0 focus-visible:ring-offset-0">
             {loadingProvider === 'apple' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <div>Continue with Apple</div>}
           </Button>
         </div>
