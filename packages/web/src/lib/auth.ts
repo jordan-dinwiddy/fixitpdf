@@ -23,6 +23,17 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.APPLE_CLIENT_SECRET!
     })
   ],
+  cookies: {
+    pkceCodeVerifier: {
+      name: "next-auth.pkce.code_verifier",
+      options: {
+        httpOnly: true,
+        sameSite: "none",
+        path: "/",
+        secure: true,
+      },
+    },
+  },
 
   // Session.strategy can be 'jwt' or 'database'. 'database' is default.
   //  If database is used, session will be stored in the database. 
