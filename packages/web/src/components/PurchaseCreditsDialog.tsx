@@ -162,10 +162,11 @@ export const PurchaseCreditsDialog = ({
 
   const handlePurchase = useCallback(async (purchaseOption: PurchaseOption) => {
     // Sleep for 2 seconds
+    console.log(purchaseOption);
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     onOpenChange(false);
-  }, []);
+  }, [onOpenChange]);
 
   const options: PurchaseOption[] = [
     { id: '1', credits: 5, price: 5, tagline: "Perfect to try things out" },
