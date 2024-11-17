@@ -72,7 +72,7 @@ export const LoginOrSignupDialog = ({
           <Button
             onClick={() => handleLogin('google')}
             disabled={loadingProvider !== null}
-            className="bg-white hover:bg-purple-50 text-purple-700 w-full justify-center px-4 py-6 focus-visible:ring-0 focus-visible:ring-offset-0">
+            className="bg-white hover:bg-purple-50 text-base text-purple-700 w-full justify-center px-4 py-6 focus-visible:ring-0 focus-visible:ring-offset-0">
             {loadingProvider === 'google' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <div>Continue with Google</div>}
           </Button>
           {/* <Button
@@ -85,7 +85,7 @@ export const LoginOrSignupDialog = ({
           <Button
             onClick={() => handleLogin('apple')}
             disabled={loadingProvider !== null}
-            className="bg-purple-600 hover:bg-purple-700 text-white w-full justify-center px-4 py-6 focus-visible:ring-0 focus-visible:ring-offset-0">
+            className="bg-purple-600 hover:bg-purple-700 text-base text-white w-full justify-center px-4 py-6 focus-visible:ring-0 focus-visible:ring-offset-0">
             {loadingProvider === 'apple' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <div>Continue with Apple</div>}
           </Button>
         </div>
