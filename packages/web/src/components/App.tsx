@@ -254,12 +254,18 @@ export default function App() {
           </div>
         ) : (
           <div className="flex items-center gap-4">
-            <Button onClick={() => setShowLoginOrSignupDialog(true)} variant="outline" className="bg-white text-purple-600 hover:bg-purple-100">
+            <Button
+              onClick={() => setShowLoginOrSignupDialog(true)}
+              variant="ghost"
+              className="bg-white text-purple-600 hover:shadow-lg hover:text-purple-600 hover:bg-white">
               Sign In
             </Button>
+
+            {/*}
             <Button onClick={() => setShowLoginOrSignupDialog(true)} className="bg-purple-700 text-white hover:bg-purple-800">
               Sign Up
             </Button>
+            */}
           </div>
         )}
 
