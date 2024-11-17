@@ -111,7 +111,7 @@ const PurchaseOptions = ({ isDesktop, options, handlePurchase }: PurchaseOptions
       {/* Footer */}
       <div className={`p-6 md:p-8 ${!isDesktop && 'bg-gray-50'} border-t border-gray-200`}>
         <Button
-          className={`w-full py-6 px-4 rounded-lg font-semibold text-white transition-all duration-200 ease-in-out flex items-center justify-center outline-none ${selectedOption !== null
+          className={`w-full py-6 px-4 rounded-lg text-base font-medium text-white transition-all duration-200 ease-in-out flex items-center justify-center outline-none ${selectedOption !== null
             ? 'bg-purple-700 hover:bg-purple-800'
             : 'bg-purple-300 cursor-not-allowed'
             }`}
