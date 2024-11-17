@@ -170,6 +170,14 @@ npm run build -w packages/shared -w packages/web -w packages/worke
 # Login Providers
 This app supports both Google and Apple login/identity providers. 
 
+## OAuth Account Linking
+* https://authjs.dev/concepts#security
+* https://authjs.dev/reference/core/providers#allowdangerousemailaccountlinking
+
+## Google
+[ADD NOTES]
+
+## Apple
 The Apple login setup was a bit trickier than Google. And since Apple doesn't support localhost
 redirect URI's, it won't work in development. 
 

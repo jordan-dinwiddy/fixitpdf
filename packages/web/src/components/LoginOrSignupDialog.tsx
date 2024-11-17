@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog"
 import { Loader2 } from 'lucide-react'
 import { signIn } from "next-auth/react"
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 interface LoginOrSignupDialogProps {
   open: boolean
@@ -21,16 +21,43 @@ export const LoginOrSignupDialog = ({
   onOpenChange,
 }: LoginOrSignupDialogProps) => {
   const [loadingProvider, setLoadingProvider] = useState<'google' | 'microsoft' | 'apple' | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null); // Ref to store the timeout ID
 
   const handleLogin = async (provider: 'google' | 'microsoft' | 'apple') => {
+    // Remove any existing timeout and set a new one
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+  
     setLoadingProvider(provider);
+    
+    timeoutRef.current = setTimeout(() => {
+      setLoadingProvider(null);
+    }, 2000);
+
     try {
+      // Note that user is probably still on this page even after signIn() returns
+      // That's why we dont immediately hide the loading spinner and instead wait 
+      // for the timeout
       await signIn(provider);
     } catch (e) {
       console.error(e);
+
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
       setLoadingProvider(null);
     }
   }
+
+  // Cleanup the timeout when the component unmounts
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
