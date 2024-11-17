@@ -76,7 +76,7 @@ export default function App() {
   const [fileToPurchase, setFileToPurchase] = useState<UserFile | null>(null);
   const [filesPollingEnabled, setFilesPollingEnabled] = useState(true);
   const [showLoginOrSignupDialog, setShowLoginOrSignupDialog] = useState(false);
-  const [showPurchaseCreditsDialog, setShowPurchaseCreditsDialog] = useState(true);
+  const [showPurchaseCreditsDialog, setShowPurchaseCreditsDialog] = useState(false);
   const { data: files, isLoading: isFilesLoading, isError: isFilesError } = useGetUserFiles({
     enabled: !!session && filesPollingEnabled,
     refreshInterval: 5000,
@@ -240,7 +240,7 @@ export default function App() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer">
+                <DropdownMenuItem className="cursor-pointer" onClick={() => setShowPurchaseCreditsDialog(true)}>
                   <CreditCard className="mr-2 h-4 w-4" />
                   <span>Buy Credits</span>
                 </DropdownMenuItem>

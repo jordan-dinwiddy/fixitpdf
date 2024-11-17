@@ -7,7 +7,7 @@ import {
   DialogTitle
 } from "@/components/ui/dialog"
 import { motion } from 'framer-motion'
-import { Check, ChevronRight, X } from 'lucide-react'
+import { Check, ChevronRight, Loader2, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from "react"
 import { Drawer, DrawerContent } from "./ui/drawer"
 import { ScrollArea } from "./ui/scroll-area"
@@ -17,16 +17,12 @@ interface PurchaseCreditsDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-
-
 interface PurchaseOption {
   id: string
   credits: number
   price: number
   tagline: string
 }
-
-
 
 interface PurchaseOptionButtonProps {
   option: PurchaseOption
@@ -45,9 +41,9 @@ const PurchaseOptionButton = ({ option, isSelected, onOptionSelect }: PurchaseOp
   return (
     <motion.button
       key={option.id}
-      className={`w-full text-left p-4 rounded-lg transition-all duration-200 ease-in-out ${isSelected
-        ? 'bg-blue-50 border-2 border-blue-500'
-        : 'bg-gray-50 border border-gray-200 hover:bg-gray-100'
+      className={`w-full text-left p-4 rounded-lg transition-all duration-200 ease-in-out outline-none ${isSelected
+        ? 'bg-purple-50 border-2 border-purple-700'
+        : 'bg-gray-50 border border-gray-200'
         }`}
       onClick={() => onOptionSelect(option)}
       whileHover={{ scale: 1.02 }}
@@ -55,11 +51,11 @@ const PurchaseOptionButton = ({ option, isSelected, onOptionSelect }: PurchaseOp
     >
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-lg font-medium text-gray-800">{option.credits} Credits</p>
+          <p className="text-lg font-medium text-purple-700">{option.credits} Credits</p>
           <p className="text-sm text-gray-500">${option.price} USD</p>
           <p className="text-xs text-gray-400 mt-1">{option.tagline}</p>
         </div>
-        <div className={`w-6 h-6 rounded-full flex items-center justify-center ${isSelected ? 'bg-blue-500' : 'border-2 border-gray-300'
+        <div className={`w-6 h-6 rounded-full flex items-center justify-center ${isSelected ? 'bg-purple-700' : 'border-2 border-gray-300'
           }`}>
           {isSelected && <Check className="w-4 h-4 text-white" />}
         </div>
@@ -71,29 +67,38 @@ const PurchaseOptionButton = ({ option, isSelected, onOptionSelect }: PurchaseOp
 interface PurchaseOptionsProps {
   isDesktop: boolean
   options: PurchaseOption[]
-  onOpenChange: (open: boolean) => void
+  handlePurchase: (purchaseOption: PurchaseOption) => void
 }
 
 /**
  * Renders the view listing purchase options incl header, options, footer with a button to purchase.
  */
-const PurchaseOptions = ({ isDesktop, onOpenChange, options }: PurchaseOptionsProps) => {
+const PurchaseOptions = ({ isDesktop, options, handlePurchase }: PurchaseOptionsProps) => {
   const [selectedOption, setSelectedOption] = useState<PurchaseOption | null>(null)
-
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleOptionSelect = useCallback((purchaseOption: PurchaseOption) => {
     setSelectedOption(purchaseOption)
   }, []);
 
-  const handlePurchase = useCallback(() => {
-    console.log('purchasing', selectedOption);
-  }, []);
+  const handlePurchaseWrapped = useCallback(async () => {
+    setIsLoading(true);
+    console.log('Purchasing credits...')
+
+    try {
+      if (selectedOption !== null) {
+        await handlePurchase(selectedOption)
+        console.log('done');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedOption, handlePurchase]);
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white rounded-2xl overflow-hidden flex flex-col h-full max-h border-red-600 border-2">
-
+    <div className="flex flex-col w-full mx-auto bg-white rounded-2xl h-full min-h-0">
       {/* Scrollable area listing options*/}
-      <ScrollArea className="flex-grow border-green-600 border-2">
+      <ScrollArea className="flex-grow overflow-y-auto">
         <div className="p-6 md:p-8">
           <div className="space-y-4">
             {options.map((option) => (
@@ -104,16 +109,18 @@ const PurchaseOptions = ({ isDesktop, onOpenChange, options }: PurchaseOptionsPr
       </ScrollArea>
 
       {/* Footer */}
-      <div className="p-6 md:p-8 bg-gray-50 border-t border-gray-200">
-        <button
-          className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition-all duration-200 ease-in-out flex items-center justify-center ${selectedOption !== null
-            ? 'bg-blue-500 hover:bg-blue-600'
-            : 'bg-gray-300 cursor-not-allowed'
+      <div className={`p-6 md:p-8 ${!isDesktop && 'bg-gray-50'} border-t border-gray-200`}>
+        <Button
+          className={`w-full py-6 px-4 rounded-lg font-semibold text-white transition-all duration-200 ease-in-out flex items-center justify-center outline-none ${selectedOption !== null
+            ? 'bg-purple-700 hover:bg-purple-800'
+            : 'bg-purple-300 cursor-not-allowed'
             }`}
-          onClick={handlePurchase}
-          disabled={selectedOption === null}
+          onClick={handlePurchaseWrapped}
+          disabled={isLoading || selectedOption === null}
         >
-          {selectedOption !== null ? (
+          {isLoading ? (
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" /> 
+          ) : selectedOption !== null ? (
             <>
               Purchase {selectedOption.credits} Credits
               <ChevronRight className="w-5 h-5 ml-2" />
@@ -121,7 +128,7 @@ const PurchaseOptions = ({ isDesktop, onOpenChange, options }: PurchaseOptionsPr
           ) : (
             'Select a plan to continue'
           )}
-        </button>
+        </Button>
       </div>
     </div>
   );
@@ -151,8 +158,14 @@ export const PurchaseCreditsDialog = ({
   onOpenChange,
 }: PurchaseCreditsDialogProps) => {
 
-  const [selectedOption, setSelectedOption] = useState<number | null>(null)
   const isDesktop = useMediaQuery("(min-width: 768px)")
+
+  const handlePurchase = useCallback(async (purchaseOption: PurchaseOption) => {
+    // Sleep for 2 seconds
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    onOpenChange(false);
+  }, []);
 
   const options: PurchaseOption[] = [
     { id: '1', credits: 5, price: 5, tagline: "Perfect to try things out" },
@@ -164,14 +177,14 @@ export const PurchaseCreditsDialog = ({
   if (isDesktop) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="flex flex-col sm:max-w-[425px] max-h-[calc(100vh-64px)]">
+        <DialogContent className="flex flex-col sm:max-w-[525px] max-h-[calc(100vh-64px)]">
           <DialogHeader className="space-y-3">
-            <DialogTitle>Buy Credits</DialogTitle>
+            <DialogTitle className="text-purple-700">Buy Credits</DialogTitle>
             <DialogDescription className="text-base">
               Choose your credit package and start fixing PDFs like a pro!
             </DialogDescription>
           </DialogHeader>
-          <PurchaseOptions isDesktop={isDesktop} options={options} onOpenChange={onOpenChange} />
+          <PurchaseOptions isDesktop={isDesktop} options={options} handlePurchase={handlePurchase} />
         </DialogContent>
       </Dialog>
     )
@@ -182,7 +195,7 @@ export const PurchaseCreditsDialog = ({
       <DrawerContent>
         <div className="flex flex-col h-[100dvh]">
           <div className="p-6 md:p-8 border-b border-gray-200 flex justify-between items-center">
-            <h2 className="text-2xl md:text-3xl font-semibold text-gray-800">Buy Credits</h2>
+            <h2 className="text-2xl md:text-3xl font-semibold text-purple-700">Buy Credits</h2>
             {!isDesktop && (
               <Button
                 variant="ghost"
@@ -193,7 +206,7 @@ export const PurchaseCreditsDialog = ({
               </Button>
             )}
           </div>
-          <PurchaseOptions isDesktop={isDesktop} options={options} onOpenChange={onOpenChange} />
+          <PurchaseOptions isDesktop={isDesktop} options={options} handlePurchase={handlePurchase}  />
         </div>
       </DrawerContent>
     </Drawer>
