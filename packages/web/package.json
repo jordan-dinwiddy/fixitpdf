@@ -14,6 +14,7 @@
     "@radix-ui/react-dropdown-menu": "^2.1.2",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-radio-group": "^1.2.1",
+    "@radix-ui/react-scroll-area": "^1.2.1",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-tooltip": "^1.1.4",
     "@tanstack/react-query": "^5.59.20",
@@ -23,6 +24,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
     "fixitpdf-shared": "file:../shared",
+    "framer-motion": "^11.11.17",
     "lucide-react": "^0.454.0",
     "next": "15.0.3",
     "next-auth": "^4.24.10",
@@ -32,7 +34,8 @@
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.19.2",
-    "uuid": "^11.0.3"
+    "uuid": "^11.0.3",
+    "vaul": "^1.1.1"
   },
   "devDependencies": {
     "@types/node": "^20.17.6",
