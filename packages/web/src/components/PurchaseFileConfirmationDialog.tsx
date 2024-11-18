@@ -59,11 +59,11 @@ export const PurchaseFileConfirmationDialog = ({
       <DialogContent className="sm:max-w-md mx-auto my-4 w-[calc(100%-2rem)] rounded-lg">
         <DialogHeader>
           <DialogTitle className="text-xl">Fix PDF File</DialogTitle>
-          <DialogDescription className="space-y-4 pt-3">
-            <p>
-              Are you sure you want to fix <span className="font-medium text-foreground">{userFile?.name}</span>?
-            </p>
-            <div className="rounded-lg border bg-muted/50 p-4">
+          <div className="space-y-4 py-4">
+            <DialogDescription className="pt-3">
+                Are you sure you want to fix <span className="font-medium text-foreground">{userFile?.name}</span>?
+            </DialogDescription>
+            <div className="rounded-lg border bg-muted/50 p-4 text-sm text-muted-foreground">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Coins className="h-5 w-5 text-purple-500" />
@@ -72,23 +72,23 @@ export const PurchaseFileConfirmationDialog = ({
                 <span className="font-medium text-purple-500">{userFile?.costInCredits} credits</span>
               </div>
               <div className="mt-2 flex items-center justify-between border-t pt-2">
-                <span className="text-sm text-muted-foreground">Your balance:</span>
-                <span className="font-medium">{userInfo?.creditBalance} credits</span>
+                <span className="font-medium">Your balance:</span>
+                <span className="">{userInfo?.creditBalance} credits</span>
               </div>
             </div>
-          </DialogDescription>
+          </div>
         </DialogHeader>
         <DialogFooter className="flex flex-col sm:flex-row gap-2">
           <Button
             variant="outline"
-            className="w-full sm:w-auto order-1 sm:order-none"
+            className="w-full sm:w-auto py-6 sm:py-4 text-base md:text-sm order-1 sm:order-none"
             onClick={() => onOpenChange(false)} disabled={isLoading}>
             Cancel
           </Button>
           <Button
             onClick={handleProceed}
             disabled={isLoading}
-            className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+            className="w-full sm:w-auto py-6 sm:py-4 text-base md:text-sm bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
           >
             {isLoading ? (
               <>
