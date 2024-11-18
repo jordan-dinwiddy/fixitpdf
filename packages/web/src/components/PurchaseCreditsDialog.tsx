@@ -12,7 +12,12 @@ import { useCallback, useEffect, useState } from "react"
 import { Drawer, DrawerContent } from "./ui/drawer"
 import { ScrollArea } from "./ui/scroll-area"
 import { apiClient } from "@/lib/axios"
-import { CreateCheckoutSessionsResponse, PurchaseOption } from "fixitpdf-shared"
+import {
+  CreateCheckoutSessionsResponse,
+  DEV_PURCHASE_OPTIONS,
+  PROD_PURCHASE_OPTIONS,
+  PurchaseOption,
+} from "fixitpdf-shared"
 
 interface PurchaseCreditsDialogProps {
   open: boolean
@@ -112,7 +117,7 @@ const PurchaseOptions = ({ isDesktop, options, handlePurchase }: PurchaseOptions
           disabled={isLoading || selectedOption === null}
         >
           {isLoading ? (
-            <Loader2 className="mr-2 h-5 w-5 animate-spin" /> 
+            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
           ) : selectedOption !== null ? (
             <>
               Purchase {selectedOption.credits} Credits
@@ -165,25 +170,14 @@ export const PurchaseCreditsDialog = ({
     if (!data.success || !data.data) {
       throw new Error(data.error || "An error whilst creating the checkout session");
     }
-    
+
     window.location.href = data.data.url;
 
     onOpenChange(false);
   }, [onOpenChange]);
 
   // Strip has a different set of pricing for dev vs production
-  const options: PurchaseOption[] = process.env.NODE_ENV === "development" ? 
-  [
-    { id: '1', priceId: 'price_1QMNctRqb2FjfvrJPVvvz5oD', credits: 5, price: 5, tagline: "Perfect to try things out (test)" },
-    { id: '2', priceId: 'price_1QMNdhRqb2FjfvrJwvlxVOhu', credits: 15, price: 10, tagline: "Save 33%" },
-    { id: '3', priceId: 'price_1QMNeVRqb2FjfvrJVETcL24d', credits: 35, price: 20, tagline: "Save 43%" },
-    { id: '4', priceId: 'price_1QMNf6Rqb2FjfvrJrJaOXGOy', credits: 100, price: 50, tagline: "Best value! Save 50%" },
-  ] : [
-    { id: '1', priceId: 'price_1QMNctRqb2FjfvrJPVvvz5oD', credits: 5, price: 5, tagline: "Perfect to try things out" },
-    { id: '2', priceId: 'price_1QMNdhRqb2FjfvrJwvlxVOhu', credits: 15, price: 10, tagline: "Save 33%" },
-    { id: '3', priceId: 'price_1QMNeVRqb2FjfvrJVETcL24d', credits: 35, price: 20, tagline: "Save 43%" },
-    { id: '4', priceId: 'price_1QMNf6Rqb2FjfvrJrJaOXGOy', credits: 100, price: 50, tagline: "Best value! Save 50%" },
-  ]
+  const options: PurchaseOption[] = process.env.NODE_ENV === "development" ? DEV_PURCHASE_OPTIONS : PROD_PURCHASE_OPTIONS;
 
   if (isDesktop) {
     return (
@@ -217,7 +211,7 @@ export const PurchaseCreditsDialog = ({
               </Button>
             )}
           </div>
-          <PurchaseOptions isDesktop={isDesktop} options={options} handlePurchase={handlePurchase}  />
+          <PurchaseOptions isDesktop={isDesktop} options={options} handlePurchase={handlePurchase} />
         </div>
       </DrawerContent>
     </Drawer>
