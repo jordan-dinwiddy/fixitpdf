@@ -17,6 +17,14 @@ export interface UserFile {
   updatedAt: string;
 }
 
+export interface PurchaseOption {
+  id: string
+  priceId: string;  // Stripe price ID
+  credits: number
+  price: number
+  tagline: string
+}
+
 export interface BaseApiResponse<T> {
   success: boolean;
   data?: T;
@@ -42,6 +50,10 @@ export interface UserInfo {
   creditBalance: number;
 }
 
+export interface CreateCheckoutSessionsRequest {
+  priceId: string;
+}
+
 export type GetUserInfoResponse = BaseApiResponse<UserInfo>;
 
 export type CreateUserFileResponse = BaseApiResponse<CreateUserFileResponseData>;
@@ -53,6 +65,12 @@ export type ListUserFilesResponse = BaseApiResponse<UserFile[]>;
 export type PurchaseUserFileResponse = BaseApiResponse<void>;
 
 export type ProcessUserFileResponse = BaseApiResponse<void>;
+
+export interface CreateCheckoutSessionsResponseData {
+  url: string;
+};
+
+export type CreateCheckoutSessionsResponse = BaseApiResponse<CreateCheckoutSessionsResponseData>;
 
 export interface UserFileDownloadResponseData {
   downloadUrl: string;

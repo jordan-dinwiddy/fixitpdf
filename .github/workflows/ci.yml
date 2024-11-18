@@ -103,6 +103,8 @@ jobs:
           APPLE_CLIENT_ID: ${{ secrets.APPLE_CLIENT_ID }}
           APPLE_CLIENT_SECRET: ${{ secrets.APPLE_CLIENT_SECRET }}
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
         EOF
 
     - name: Deploy with Helm
