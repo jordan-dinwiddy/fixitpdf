@@ -16,9 +16,9 @@ import { useGetUserInfo } from '@/lib/hooks/useGetUserInfo'
 import { TooltipProvider } from '@radix-ui/react-tooltip'
 import { useQueryClient } from "@tanstack/react-query"
 import { CreateUserFileRequest, CreateUserFileResponse, CreateUserFileResponseData, PurchaseUserFileResponse, UserFile } from "fixitpdf-shared"
-import { CreditCard, FileText, Loader2, LogOut, Upload, User } from 'lucide-react'
+import { CheckCircle2, CreditCard, FileText, Loader2, LogOut, Upload, User, XCircle } from 'lucide-react'
 import { signOut, useSession } from "next-auth/react"
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import { useGetUserFiles } from '../lib/hooks/useGetUserFiles'
@@ -27,6 +27,8 @@ import { DownloadFileButton } from "./DownloadFileButton"
 import { FixFileButton } from './FixFileButton'
 import { LoginOrSignupDialog } from './LoginOrSignupDialog'
 import { PurchaseCreditsDialog } from './PurchaseCreditsDialog'
+import { useRouter } from "next/navigation";
+import { useToast } from '@/hooks/use-toast'
 
 interface RequestFileCreationResult {
   file: File,
@@ -64,6 +66,25 @@ const uploadFileToS3 = async (requestFileCreationResult: RequestFileCreationResu
   });
 };
 
+const buildTempUserFile = (file: File): UserFile => {
+  return {
+    id: uuidv4(),
+    name: file.name,
+    fileType: file.type,
+    state: 'uploading',
+    originalFileSizeBytes: null,
+    processedFileSizeBytes: null,
+    costInCredits: null,
+    issueCount: 0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
+}
+
+interface PaymentResult {
+  success: boolean;
+  error?: string;
+}
 
 /**
  * The main thing. 
@@ -72,6 +93,9 @@ const uploadFileToS3 = async (requestFileCreationResult: RequestFileCreationResu
  */
 export default function App() {
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const { toast } = useToast()
+
   const { data: session, status: sessionStatus } = useSession();
   const [fileToPurchase, setFileToPurchase] = useState<UserFile | null>(null);
   const [filesPollingEnabled, setFilesPollingEnabled] = useState(true);
@@ -87,36 +111,61 @@ export default function App() {
     refreshInterval: 30000,
   });
 
+  const showPaymentToast = useCallback((paymentResult: PaymentResult) => {
+    toast({
+      description: (
+        <div className="flex items-center gap-2">
+          {paymentResult.success ? (
+            <CheckCircle2 className="h-5 w-5 text-green-600" />
+          ) : (
+            <XCircle className="h-5 w-5 text-red-600" />
+          )}
+          <span className={`${paymentResult.success ? "text-green-600" : "text-red-800"} font-semibold`}>
+            {paymentResult.success ? "Payment successful!" : "Unable to complete payment"}
+          </span>
+        </div>
+      )
+    });
+  }, [toast]);
 
-  /**
-   * Delete a file and refresh.
-   */
-  const deleteFile = useCallback(async (fileId: string) => {
-    await apiClient.delete(`/api/user/files/${fileId}`);
+  // Support the ?payment=success|failure query parameter
+  useEffect(() => {
+    const queryParams = new URLSearchParams(window.location.search);
+    const paymentStatus = queryParams.get("payment");
 
-    queryClient.invalidateQueries({ queryKey: ['userFiles'] });
+    if (paymentStatus) {
+      const paymentResult = paymentStatus === "success" ? {
+        success: true
+      } : {
+        success: false,
+        error: "Payment failed"
+      };
 
-  }, [queryClient]);
+      showPaymentToast(paymentResult);
+
+      // Remove the 'payment' query parameter
+      queryParams.delete("payment");
+      const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
+      router.replace(newUrl);
+    }
+  }, [router, showPaymentToast]);
 
   const optimisticFileCreation = useCallback((file: File) => {
-    const newUserFile: UserFile = {
-      id: uuidv4(),
-      name: file.name,
-      fileType: file.type,
-      state: 'uploading',
-      originalFileSizeBytes: null,
-      processedFileSizeBytes: null,
-      costInCredits: null,
-      issueCount: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+    const newUserFile: UserFile = buildTempUserFile(file);
 
     // Optimistically update cache
     queryClient.setQueryData<UserFile[]>(
       ['userFiles'],
       (old?: UserFile[]) => [newUserFile, ...(old || [])]
     );
+  }, [queryClient]);
+
+  /**
+   * Delete a file and refresh.
+   */
+  const deleteFile = useCallback(async (fileId: string) => {
+    await apiClient.delete(`/api/user/files/${fileId}`);
+    queryClient.invalidateQueries({ queryKey: ['userFiles'] });
   }, [queryClient]);
 
   /**
@@ -396,7 +445,7 @@ export default function App() {
       <PurchaseCreditsDialog
         open={showPurchaseCreditsDialog}
         onOpenChange={(open) => { setShowPurchaseCreditsDialog(open) }}
-        />
+      />
     </div>
   )
 }
