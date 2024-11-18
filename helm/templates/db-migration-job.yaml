@@ -15,7 +15,7 @@ spec:
       - name: {{ .Chart.Name }}
         image: "{{ .Values.worker.image.repository }}:{{ .Values.worker.image.tag | default .Chart.AppVersion }}"
         imagePullPolicy: {{ .Values.imagePullPolicy }}
-        command: ["npm", "run", "migrate", "-w", "packages/shared"]
+        command: ["npm", "run", "migrate", "-w", "packages/shared-server"]
         args: []
         env:
           - name: APP_TYPE
