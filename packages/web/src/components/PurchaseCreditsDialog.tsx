@@ -12,19 +12,11 @@ import { useCallback, useEffect, useState } from "react"
 import { Drawer, DrawerContent } from "./ui/drawer"
 import { ScrollArea } from "./ui/scroll-area"
 import { apiClient } from "@/lib/axios"
-import { CreateCheckoutSessionsResponse } from "fixitpdf-shared"
+import { CreateCheckoutSessionsResponse, PurchaseOption } from "fixitpdf-shared"
 
 interface PurchaseCreditsDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-}
-
-interface PurchaseOption {
-  id: string
-  priceId: string;  // Stripe price ID
-  credits: number
-  price: number
-  tagline: string
 }
 
 interface PurchaseOptionButtonProps {

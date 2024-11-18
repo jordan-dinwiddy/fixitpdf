@@ -46,11 +46,15 @@ export async function POST(
           quantity: 1,
         },
       ],
+
+      // Set this because the customers email to be populated in stripe checkout
+      customer_email: session.user.email || undefined,
       mode: 'payment', // One-time payment
       success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/?payment=success`,
       cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/?payment=cancelled`,
       metadata: {
         userId: session.userId,
+        priceId: body.priceId,
       },
     });
 

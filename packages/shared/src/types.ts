@@ -17,6 +17,14 @@ export interface UserFile {
   updatedAt: string;
 }
 
+export interface PurchaseOption {
+  id: string
+  priceId: string;  // Stripe price ID
+  credits: number
+  price: number
+  tagline: string
+}
+
 export interface BaseApiResponse<T> {
   success: boolean;
   data?: T;
