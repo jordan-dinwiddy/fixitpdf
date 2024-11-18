@@ -2,13 +2,14 @@ import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle
 } from "@/components/ui/dialog"
 import { useGetUserInfo } from "@/lib/hooks/useGetUserInfo"
 import { UserFile } from "fixitpdf-shared"
-import { Loader2 } from 'lucide-react'
+import { Coins, Loader2 } from 'lucide-react'
 import { useEffect, useState } from "react"
 
 interface PurchaseFileConfirmationDialogProps {
@@ -25,7 +26,7 @@ export const PurchaseFileConfirmationDialog = ({
   onProceed
 }: PurchaseFileConfirmationDialogProps) => {
   const [isLoading, setIsLoading] = useState(false)
-  
+
   const { data: userInfo } = useGetUserInfo({
     enabled: open,
     refreshInterval: 30000,
@@ -55,27 +56,40 @@ export const PurchaseFileConfirmationDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md mx-auto my-4 w-[calc(100%-2rem)] rounded-lg">
         <DialogHeader>
-          <DialogTitle>Confirm</DialogTitle>
+          <DialogTitle className="text-xl">Fix PDF File</DialogTitle>
+          <DialogDescription className="space-y-4 pt-3">
+            <p>
+              Are you sure you want to fix <span className="font-medium text-foreground">{userFile?.name}</span>?
+            </p>
+            <div className="rounded-lg border bg-muted/50 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Coins className="h-5 w-5 text-purple-500" />
+                  <span className="font-medium">Cost:</span>
+                </div>
+                <span className="font-medium text-purple-500">{userFile?.costInCredits} credits</span>
+              </div>
+              <div className="mt-2 flex items-center justify-between border-t pt-2">
+                <span className="text-sm text-muted-foreground">Your balance:</span>
+                <span className="font-medium">{userInfo?.creditBalance} credits</span>
+              </div>
+            </div>
+          </DialogDescription>
         </DialogHeader>
-        {userFile && (<div className="space-y-4 py-4">
-          <p className="text-sm text-muted-foreground">
-            Are you sure you want to process this file?
-          </p>
-          <p className="text-lg font-semibold text-primary">
-            {userFile.name}
-          </p>
-          <p className="text-sm text-muted-foreground">
-            It will cost <strong>{userFile.costInCredits}</strong> credits (you have <strong>{userInfo?.creditBalance}</strong> available).
-          </p>
-        </div>
-        )}
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
+        <DialogFooter className="flex flex-col sm:flex-row gap-2">
+          <Button
+            variant="outline"
+            className="w-full sm:w-auto order-1 sm:order-none"
+            onClick={() => onOpenChange(false)} disabled={isLoading}>
             Cancel
           </Button>
-          <Button type="button" variant="default" onClick={handleProceed} disabled={isLoading}>
+          <Button
+            onClick={handleProceed}
+            disabled={isLoading}
+            className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+          >
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
