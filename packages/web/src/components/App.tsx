@@ -118,13 +118,14 @@ export default function App() {
           {paymentResult.success ? (
             <CheckCircle2 className="h-5 w-5 text-green-600" />
           ) : (
-            <XCircle className="h-5 w-5 text-red-600" />
+            <XCircle className="h-5 w-5 text-red-700" />
           )}
-          <span className={`${paymentResult.success ? "text-green-600" : "text-red-800"} font-semibold`}>
+          <span className={`${paymentResult.success ? "text-green-600" : "text-red-700"} font-semibold`}>
             {paymentResult.success ? "Payment successful!" : "Unable to complete payment"}
           </span>
         </div>
-      )
+      ),
+      className: "border-none",
     });
   }, [toast]);
 
