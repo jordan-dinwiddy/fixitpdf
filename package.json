@@ -4,7 +4,8 @@
   "workspaces": [
     "packages/web",
     "packages/worker",
-    "packages/shared"
+    "packages/shared",
+    "packages/shared-server"
   ],
   "description": "Root monorepo project for FixItPDF",
   "scripts": {

@@ -25,6 +25,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
     "fixitpdf-shared": "file:../shared",
+    "fixitpdf-shared-server": "file:../shared-server",
     "framer-motion": "^11.11.17",
     "lucide-react": "^0.454.0",
     "next": "15.0.3",

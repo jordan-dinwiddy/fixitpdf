@@ -1,8 +1,8 @@
 import { authOptions } from '@/lib/auth';
-import { CreateUserFileResponse, generateFileUploadUrl, ListUserFilesResponse, prismaClient } from 'fixitpdf-shared';
+import { CreateUserFileResponse, ListUserFilesResponse, UserFile } from 'fixitpdf-shared';
+import { generateFileUploadUrl, prismaClient } from 'fixitpdf-shared-server';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
-import { UserFile } from 'fixitpdf-shared';
 
 /** 
  * API routes for managing files for the current user.

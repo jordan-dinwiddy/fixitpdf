@@ -1,4 +1,4 @@
-import { prismaClient } from "fixitpdf-shared";
+import { prismaClient } from "fixitpdf-shared-server";
 import { v4 as uuidv4 } from 'uuid';
 
 /**
