@@ -1,5 +1,6 @@
 import { adjustUserCreditBalance } from '@/services/user/userService';
-import { prismaClient, PurchaseUserFileResponse } from 'fixitpdf-shared';
+import { PurchaseUserFileResponse } from 'fixitpdf-shared';
+import { prismaClient } from 'fixitpdf-shared-server';
 import { NextRequest, NextResponse } from 'next/server';
 
 interface PurchaseUserFileParams {

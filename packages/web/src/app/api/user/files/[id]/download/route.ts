@@ -1,4 +1,5 @@
-import { generateFileDownloadUrl, prismaClient, UserFileDownloadResponse } from 'fixitpdf-shared';
+import { UserFileDownloadResponse } from 'fixitpdf-shared';
+import { generateFileDownloadUrl, prismaClient } from 'fixitpdf-shared-server';
 import { NextRequest, NextResponse } from 'next/server';
 
 interface DownloadUserFileParams {

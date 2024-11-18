@@ -1,5 +1,5 @@
 import { Worker } from 'bullmq';
-import { redisClient } from 'fixitpdf-shared';
+import { redisClient } from 'fixitpdf-shared-server';
 import { processFileJob } from './processors/fileProcessor';
 
 console.log('Loading email worker...');

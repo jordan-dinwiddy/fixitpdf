@@ -1,5 +1,6 @@
+import { DeleteUserFileResponse } from 'fixitpdf-shared';
+import { prismaClient } from 'fixitpdf-shared-server';
 import { NextRequest, NextResponse } from 'next/server';
-import { DeleteUserFileResponse, prismaClient } from 'fixitpdf-shared';
 
 interface DeleteUserFileParams {
   id: string;
@@ -17,7 +18,7 @@ export async function DELETE(
   { params }: { params: Promise<DeleteUserFileParams> },
 ): Promise<NextResponse<DeleteUserFileResponse>> {
   const { id: fileId } = await params;
-  
+
   try {
     // Soft delete the file
     await prismaClient.file.update({

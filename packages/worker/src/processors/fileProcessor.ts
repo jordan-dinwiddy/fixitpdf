@@ -1,4 +1,4 @@
-import { downloadFile, getFileSize, prismaClient, uploadFile } from 'fixitpdf-shared';
+import { downloadFile, getFileSize, prismaClient, uploadFile } from 'fixitpdf-shared-server';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { promises as fs } from 'fs';

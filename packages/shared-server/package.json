@@ -1,0 +1,25 @@
+{
+  "name": "fixitpdf-shared-server",
+  "version": "1.0.0",
+  "description": "Shared code (server side) for the FixItPDF project",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npm run generate && tsc",
+    "generate": "prisma generate",
+    "migrate": "prisma migrate deploy",
+    "dev": "prisma migrate dev"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.689.0",
+    "@aws-sdk/s3-request-presigner": "^3.689.0",
+    "@prisma/client": "^5.22.0",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "prisma": "^5.22.0",
+    "typescript": "^5.6.3"
+  }
+}

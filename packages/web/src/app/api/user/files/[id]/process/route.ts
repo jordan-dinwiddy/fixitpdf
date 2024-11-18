@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prismaClient, ProcessUserFileResponse } from 'fixitpdf-shared';
+import { ProcessUserFileResponse } from 'fixitpdf-shared';
+import { prismaClient } from 'fixitpdf-shared-server';
 import { defaultQueue } from '@/lib/queues';
 
 interface ProcessUserFileParams {

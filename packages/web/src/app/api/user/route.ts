@@ -1,5 +1,6 @@
 import { authOptions } from '@/lib/auth';
-import { GetUserInfoResponse, prismaClient } from 'fixitpdf-shared';
+import { GetUserInfoResponse } from 'fixitpdf-shared';
+import { prismaClient } from 'fixitpdf-shared-server';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 
