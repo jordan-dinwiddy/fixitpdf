@@ -1,4 +1,5 @@
 import { prismaClient } from "fixitpdf-shared";
+import { v4 as uuidv4 } from 'uuid';
 
 /**
  * Adjust the credit balance of a user and record the transaction.
@@ -11,9 +12,19 @@ import { prismaClient } from "fixitpdf-shared";
 export const adjustUserCreditBalance = async (
   userId: string,
   amount: number,
-  reason?: string
+  reason?: string,
+  idempotencyKey: string = uuidv4(), 
 ): Promise<void> => {
   await prismaClient.$transaction(async (tx) => {
+    const existingTransaction = await tx.accountBalanceTransaction.findUnique({
+      where: { idempotencyKey },
+    });
+
+    if (existingTransaction) {
+      console.log(`Skipping duplicate transaction with idempotency key ${idempotencyKey}`);
+      return;
+    }
+
     const user = await tx.user.findUnique({
       where: { id: userId },
       select: { creditBalance: true },
@@ -38,6 +49,7 @@ export const adjustUserCreditBalance = async (
         userId,
         amount,
         reason,
+        idempotencyKey,
       },
     });
   });

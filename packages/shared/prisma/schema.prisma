@@ -98,5 +98,6 @@ model AccountBalanceTransaction {
   userId     String
   amount     Int      // Amount of the adjustment (can be positive or negative)
   reason     String?  // Optional description of the adjustment
+  idempotencyKey String?   @unique @default(uuid())
   createdAt  DateTime @default(now())
 }

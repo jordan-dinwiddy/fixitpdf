@@ -37,8 +37,13 @@ const fulfillUserOrder = async (sessionId: string, userId: string, priceId: stri
     throw new Error(`No purchase option found for priceId ${priceId}`);
   }
 
-  // TODO 17Nov24: Add idempotency key here...
-  await adjustUserCreditBalance(userId, purchaseOption.credits, `Fulfilled checkout session ${sessionId}`);
+  // Repeat calls with same sessionId are idempotent
+  await adjustUserCreditBalance(
+    userId,
+    purchaseOption.credits,
+    `Fulfilled checkout session ${sessionId}`,
+    sessionId,
+  );
 }
 
 /**
