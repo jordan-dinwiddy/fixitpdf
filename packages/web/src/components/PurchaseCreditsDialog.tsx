@@ -11,6 +11,8 @@ import { Check, ChevronRight, Loader2, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from "react"
 import { Drawer, DrawerContent } from "./ui/drawer"
 import { ScrollArea } from "./ui/scroll-area"
+import { apiClient } from "@/lib/axios"
+import { CreateCheckoutSessionsResponse } from "fixitpdf-shared"
 
 interface PurchaseCreditsDialogProps {
   open: boolean
@@ -19,6 +21,7 @@ interface PurchaseCreditsDialogProps {
 
 interface PurchaseOption {
   id: string
+  priceId: string;  // Stripe price ID
   credits: number
   price: number
   tagline: string
@@ -83,12 +86,10 @@ const PurchaseOptions = ({ isDesktop, options, handlePurchase }: PurchaseOptions
 
   const handlePurchaseWrapped = useCallback(async () => {
     setIsLoading(true);
-    console.log('Purchasing credits...')
 
     try {
       if (selectedOption !== null) {
         await handlePurchase(selectedOption)
-        console.log('done');
       }
     } finally {
       setIsLoading(false);
@@ -135,7 +136,6 @@ const PurchaseOptions = ({ isDesktop, options, handlePurchase }: PurchaseOptions
 
 }
 
-
 function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(false)
 
@@ -152,28 +152,46 @@ function useMediaQuery(query: string) {
   return matches
 }
 
-
+/**
+ * Renders a Dialog (or Drawer on mobile) to purchase credits.
+ * 
+ * @param param0 
+ * @returns 
+ */
 export const PurchaseCreditsDialog = ({
   open,
   onOpenChange,
 }: PurchaseCreditsDialogProps) => {
-
   const isDesktop = useMediaQuery("(min-width: 768px)")
 
   const handlePurchase = useCallback(async (purchaseOption: PurchaseOption) => {
     // Sleep for 2 seconds
     console.log(purchaseOption);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    const { data } = await apiClient.post<CreateCheckoutSessionsResponse>("/api/checkout-sessions", { priceId: purchaseOption.priceId });
+
+    if (!data.success || !data.data) {
+      throw new Error(data.error || "An error whilst creating the checkout session");
+    }
+    
+    window.location.href = data.data.url;
 
     onOpenChange(false);
   }, [onOpenChange]);
 
-  const options: PurchaseOption[] = [
-    { id: '1', credits: 5, price: 5, tagline: "Perfect to try things out" },
-    { id: '2', credits: 15, price: 10, tagline: "Save 33%" },
-    { id: '3', credits: 35, price: 20, tagline: "Save 43%" },
-    { id: '4', credits: 100, price: 50, tagline: "Best value! Save 50%" },
-  ];
+  // Strip has a different set of pricing for dev vs production
+  const options: PurchaseOption[] = process.env.NODE_ENV === "development" ? 
+  [
+    { id: '1', priceId: 'price_1QMNctRqb2FjfvrJPVvvz5oD', credits: 5, price: 5, tagline: "Perfect to try things out (test)" },
+    { id: '2', priceId: 'price_1QMNdhRqb2FjfvrJwvlxVOhu', credits: 15, price: 10, tagline: "Save 33%" },
+    { id: '3', priceId: 'price_1QMNeVRqb2FjfvrJVETcL24d', credits: 35, price: 20, tagline: "Save 43%" },
+    { id: '4', priceId: 'price_1QMNf6Rqb2FjfvrJrJaOXGOy', credits: 100, price: 50, tagline: "Best value! Save 50%" },
+  ] : [
+    { id: '1', priceId: 'price_1QMNctRqb2FjfvrJPVvvz5oD', credits: 5, price: 5, tagline: "Perfect to try things out" },
+    { id: '2', priceId: 'price_1QMNdhRqb2FjfvrJwvlxVOhu', credits: 15, price: 10, tagline: "Save 33%" },
+    { id: '3', priceId: 'price_1QMNeVRqb2FjfvrJVETcL24d', credits: 35, price: 20, tagline: "Save 43%" },
+    { id: '4', priceId: 'price_1QMNf6Rqb2FjfvrJrJaOXGOy', credits: 100, price: 50, tagline: "Best value! Save 50%" },
+  ]
 
   if (isDesktop) {
     return (

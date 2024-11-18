@@ -42,6 +42,10 @@ export interface UserInfo {
   creditBalance: number;
 }
 
+export interface CreateCheckoutSessionsRequest {
+  priceId: string;
+}
+
 export type GetUserInfoResponse = BaseApiResponse<UserInfo>;
 
 export type CreateUserFileResponse = BaseApiResponse<CreateUserFileResponseData>;
@@ -53,6 +57,12 @@ export type ListUserFilesResponse = BaseApiResponse<UserFile[]>;
 export type PurchaseUserFileResponse = BaseApiResponse<void>;
 
 export type ProcessUserFileResponse = BaseApiResponse<void>;
+
+export interface CreateCheckoutSessionsResponseData {
+  url: string;
+};
+
+export type CreateCheckoutSessionsResponse = BaseApiResponse<CreateCheckoutSessionsResponseData>;
 
 export interface UserFileDownloadResponseData {
   downloadUrl: string;
