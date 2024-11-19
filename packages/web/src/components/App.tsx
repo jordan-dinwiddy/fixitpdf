@@ -140,14 +140,13 @@ export default function App() {
     const paymentStatus = queryParams.get("payment");
 
     if (paymentStatus) {
-      const paymentResult = paymentStatus === "success" ? {
-        success: true
-      } : {
-        success: false,
-        error: "Payment failed"
-      };
-
-      showPaymentToast(paymentResult);
+      if (paymentStatus === "success") {
+        showPaymentToast({
+          success: true,
+        });
+      } else if (paymentStatus === "cancelled") {
+        setShowPurchaseCreditsModal(true);
+      }
 
       // Remove the 'payment' query parameter
       queryParams.delete("payment");
@@ -276,16 +275,16 @@ export default function App() {
           <Loader2 className="h-6 w-6 text-white animate-spin" />
         ) : session ? (
           <div className="flex items-center gap-4">
-              {userInfo ? (
-                <Badge
-                  variant="secondary"
-                  className="h-8 px-4 text-sm rounded-2xl truncate cursor-pointer hover:bg-white"
-                  onClick={() => setShowPurchaseCreditsModal(true) }
-                >
-                  {userInfo?.creditBalance} credits
-                  <span className="hidden sm:inline">&nbsp;available</span>
-                </Badge>
-              ) : null}
+            {userInfo ? (
+              <Badge
+                variant="secondary"
+                className="h-8 px-4 text-sm rounded-2xl truncate cursor-pointer hover:bg-white"
+                onClick={() => setShowPurchaseCreditsModal(true)}
+              >
+                {userInfo?.creditBalance} credits
+                <span className="hidden sm:inline">&nbsp;available</span>
+              </Badge>
+            ) : null}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0 overflow-hidden">
