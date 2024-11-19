@@ -29,6 +29,7 @@ import { LoginOrSignupDialog } from './LoginOrSignupDialog'
 import { PurchaseCreditsDialog } from './PurchaseCreditsDialog'
 import { useRouter } from "next/navigation";
 import { useToast } from '@/hooks/use-toast'
+import { InsufficientCreditsDialog } from './InsufficientCreditsDialog'
 
 interface RequestFileCreationResult {
   file: File,
@@ -101,6 +102,7 @@ export default function App() {
   const [filesPollingEnabled, setFilesPollingEnabled] = useState(true);
   const [showLoginOrSignupDialog, setShowLoginOrSignupDialog] = useState(false);
   const [showPurchaseCreditsDialog, setShowPurchaseCreditsDialog] = useState(false);
+  const [showInsufficientCreditsDialog, setShowInsufficientCreditsDialog] = useState(false);
   const { data: files, isLoading: isFilesLoading, isError: isFilesError } = useGetUserFiles({
     enabled: !!session && filesPollingEnabled,
     refreshInterval: 5000,
@@ -240,6 +242,16 @@ export default function App() {
     queryClient.invalidateQueries({ queryKey: ['userFiles'] });
     return true;
   }, [queryClient]);
+
+  const handleFileFix = useCallback(async (file: UserFile) => {
+    const creditBalance = userInfo?.creditBalance || 0;
+
+    if (creditBalance > 0) {
+      setFileToPurchase(file)
+    } else {
+      setShowInsufficientCreditsDialog(true);
+    }
+  }, [userInfo]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500">
@@ -412,7 +424,7 @@ export default function App() {
                           { /* File actions */}
                           <div className="flex items-center ">
                             {file.state === 'processed' && file.issueCount > 0 && (
-                              <FixFileButton onClick={() => setFileToPurchase(file)} />
+                              <FixFileButton onClick={() => handleFileFix(file)} />
                             )}
                             {file.state === 'purchased' && (
                               <DownloadFileButton userFile={file} />
@@ -447,6 +459,11 @@ export default function App() {
         open={showPurchaseCreditsDialog}
         onOpenChange={(open) => { setShowPurchaseCreditsDialog(open) }}
       />
+
+      <InsufficientCreditsDialog
+        open={showInsufficientCreditsDialog}
+        onOpenChange={(open) => { setShowInsufficientCreditsDialog(open) }}
+        onProceed={() => { setShowInsufficientCreditsDialog(false); setShowPurchaseCreditsDialog(true) } } />
     </div>
   )
 }

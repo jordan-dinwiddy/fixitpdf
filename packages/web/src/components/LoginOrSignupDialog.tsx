@@ -33,7 +33,7 @@ export const LoginOrSignupDialog = ({
     
     timeoutRef.current = setTimeout(() => {
       setLoadingProvider(null);
-    }, 2000);
+    }, 4000);
 
     try {
       // Note that user is probably still on this page even after signIn() returns
