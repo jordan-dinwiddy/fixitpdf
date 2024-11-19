@@ -25,6 +25,8 @@ model User {
 
   creditBalance  Int @default(10)
   transactions   AccountBalanceTransaction[] 
+
+  showWelcomeMessage  Boolean @default(true)
 }
 
 // Required by nextAuth - https://authjs.dev/getting-started/adapters/prisma?_gl=1*g8pn6o*_gcl_au*MjEzNzE1NjE4Mi4xNzMxNTI1NDgz

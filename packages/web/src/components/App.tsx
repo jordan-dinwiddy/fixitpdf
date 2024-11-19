@@ -30,6 +30,8 @@ import { FixFileButton } from './FixFileButton'
 import { InsufficientCreditsModal } from './modals/InsufficientCreditsModal'
 import { LoginOrSignupModal } from './modals/LoginOrSignupModal'
 import { PurchaseFileConfirmationModal } from './modals/PurchaseFileConfirmationModal'
+import { useMessageBanners } from '@/lib/hooks/useMessageBanners'
+import { WelcomeNewUserModal } from './modals/WelcomeNewUserModal'
 
 interface RequestFileCreationResult {
   file: File,
@@ -112,6 +114,8 @@ export default function App() {
     enabled: !!session,
     refreshInterval: 30000,
   });
+
+  const { isBannerVisible, ackBanner } = useMessageBanners();
 
   const showPaymentToast = useCallback((paymentResult: PaymentResult) => {
     toast({
@@ -458,6 +462,10 @@ export default function App() {
         open={showInsufficientCreditsModal}
         onOpenChange={(open) => { setShowInsufficientCreditsModal(open) }}
         onProceed={() => { setShowInsufficientCreditsModal(false); setShowPurchaseCreditsModal(true) } } />
+
+      <WelcomeNewUserModal
+        open={isBannerVisible('welcome_new_user')}
+        onProceed={() => ackBanner('welcome_new_user')} />
     </div>
   )
 }
