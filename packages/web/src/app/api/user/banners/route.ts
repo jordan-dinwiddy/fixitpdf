@@ -39,7 +39,7 @@ export async function GET(): Promise<NextResponse<GetUserMessageBannersResponse>
       success: true, data: [
         {
           id: 'welcome_new_user',
-          acked: false,
+          acked: !user.showWelcomeMessage,
         },
       ]
     }, { status: 200 });

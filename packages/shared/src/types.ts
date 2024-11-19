@@ -54,6 +54,11 @@ export interface CreateCheckoutSessionsRequest {
   priceId: string;
 }
 
+export interface MessageBanner {
+  id: string;
+  acked: boolean;
+};
+
 export type GetUserInfoResponse = BaseApiResponse<UserInfo>;
 
 export type CreateUserFileResponse = BaseApiResponse<CreateUserFileResponseData>;
@@ -66,6 +71,12 @@ export type PurchaseUserFileResponse = BaseApiResponse<void>;
 
 export type ProcessUserFileResponse = BaseApiResponse<void>;
 
+/**
+ * A MessageBanner is a notice that is typically broadcast to users and they can acknowledge it once
+ * to dismiss it and not seen it again.
+ */
+export type GetUserMessageBannersResponse = BaseApiResponse<MessageBanner[]>;
+
 export interface CreateCheckoutSessionsResponseData {
   url: string;
 };
@@ -77,3 +88,5 @@ export interface UserFileDownloadResponseData {
 }
 
 export type UserFileDownloadResponse = BaseApiResponse<UserFileDownloadResponseData>;
+
+export type AckUserMessageBannerResponse = BaseApiResponse<void>;

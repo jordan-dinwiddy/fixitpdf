@@ -1,21 +1,9 @@
 import { authOptions } from '@/lib/auth';
 import { AckUserMessageBannerResponse } from 'fixitpdf-shared';
+import { prismaClient } from 'fixitpdf-shared-server';
 import { getServerSession } from 'next-auth';
 import { NextResponse } from 'next/server';
 
-/**
- * Create a checkout session
- * 
- * POST /api/checkout-sessions
- * 
- * {
- *   "priceId": ""
- * }
- * 
- * @param req 
- * @param param1 
- * @returns 
- */
 export async function POST(): Promise<NextResponse<AckUserMessageBannerResponse>> {
 
   const session = await getServerSession(authOptions);
@@ -25,6 +13,13 @@ export async function POST(): Promise<NextResponse<AckUserMessageBannerResponse>
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
+  const userId = session.userId;
+
+  await prismaClient.user.update({
+    where: { id: userId },
+    data: { showWelcomeMessage: false },
+  });
+
   try {
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -32,4 +27,3 @@ export async function POST(): Promise<NextResponse<AckUserMessageBannerResponse>
     return NextResponse.json({ success: false, error: 'Error acknowledging user banner' }, { status: 500 });
   }
 }
-
