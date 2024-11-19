@@ -1,6 +1,6 @@
 'use client'
 
-import { PurchaseFileConfirmationDialog } from '@/components/PurchaseFileConfirmationDialog'
+import { PurchaseCreditsModal } from '@/components/modals/PurchaseCreditsModal'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import {
@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useToast } from '@/hooks/use-toast'
 import { apiClient } from "@/lib/axios"
 import { useGetUserInfo } from '@/lib/hooks/useGetUserInfo'
 import { TooltipProvider } from '@radix-ui/react-tooltip'
@@ -18,6 +19,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { CreateUserFileRequest, CreateUserFileResponse, CreateUserFileResponseData, PurchaseUserFileResponse, UserFile } from "fixitpdf-shared"
 import { CheckCircle2, CreditCard, FileText, Loader2, LogOut, Upload, User, XCircle } from 'lucide-react'
 import { signOut, useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
@@ -25,11 +27,9 @@ import { useGetUserFiles } from '../lib/hooks/useGetUserFiles'
 import { DeleteFileButton } from './DeleteFileButton'
 import { DownloadFileButton } from "./DownloadFileButton"
 import { FixFileButton } from './FixFileButton'
-import { LoginOrSignupDialog } from './LoginOrSignupDialog'
-import { PurchaseCreditsDialog } from './PurchaseCreditsDialog'
-import { useRouter } from "next/navigation";
-import { useToast } from '@/hooks/use-toast'
-import { InsufficientCreditsDialog } from './InsufficientCreditsDialog'
+import { InsufficientCreditsModal } from './modals/InsufficientCreditsModal'
+import { LoginOrSignupModal } from './modals/LoginOrSignupModal'
+import { PurchaseFileConfirmationModal } from './modals/PurchaseFileConfirmationModal'
 
 interface RequestFileCreationResult {
   file: File,
@@ -100,9 +100,9 @@ export default function App() {
   const { data: session, status: sessionStatus } = useSession();
   const [fileToPurchase, setFileToPurchase] = useState<UserFile | null>(null);
   const [filesPollingEnabled, setFilesPollingEnabled] = useState(true);
-  const [showLoginOrSignupDialog, setShowLoginOrSignupDialog] = useState(false);
-  const [showPurchaseCreditsDialog, setShowPurchaseCreditsDialog] = useState(false);
-  const [showInsufficientCreditsDialog, setShowInsufficientCreditsDialog] = useState(false);
+  const [showLoginOrSignupModal, setShowLoginOrSignupModal] = useState(false);
+  const [showPurchaseCreditsModal, setShowPurchaseCreditsModal] = useState(false);
+  const [showInsufficientCreditsModal, setShowInsufficientCreditsModal] = useState(false);
   const { data: files, isLoading: isFilesLoading, isError: isFilesError } = useGetUserFiles({
     enabled: !!session && filesPollingEnabled,
     refreshInterval: 5000,
@@ -184,7 +184,7 @@ export default function App() {
 
     // User must be logged in to upload files
     if (!session) {
-      setShowLoginOrSignupDialog(true);
+      setShowLoginOrSignupModal(true);
       return;
     }
 
@@ -209,14 +209,14 @@ export default function App() {
       await startFileProcessing(fileCreationResult.response.file.id);
       queryClient.invalidateQueries({ queryKey: ['userFiles'] });
     });
-  }, [optimisticFileCreation, queryClient, session, setShowLoginOrSignupDialog]);
+  }, [optimisticFileCreation, queryClient, session, setShowLoginOrSignupModal]);
 
   const handleDropZoneClick = useCallback((event: React.MouseEvent) => {
     if (!session) {
-      setShowLoginOrSignupDialog(true);
+      setShowLoginOrSignupModal(true);
       event.preventDefault(); // Prevent opening file picker
     }
-  }, [setShowLoginOrSignupDialog, session]);
+  }, [setShowLoginOrSignupModal, session]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -249,7 +249,7 @@ export default function App() {
     if (creditBalance > 0) {
       setFileToPurchase(file)
     } else {
-      setShowInsufficientCreditsDialog(true);
+      setShowInsufficientCreditsModal(true);
     }
   }, [userInfo]);
 
@@ -302,7 +302,7 @@ export default function App() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer" onClick={() => setShowPurchaseCreditsDialog(true)}>
+                <DropdownMenuItem className="cursor-pointer" onClick={() => setShowPurchaseCreditsModal(true)}>
                   <CreditCard className="mr-2 h-4 w-4" />
                   <span>Buy Credits</span>
                 </DropdownMenuItem>
@@ -317,17 +317,11 @@ export default function App() {
         ) : (
           <div className="flex items-center gap-4">
             <Button
-              onClick={() => setShowLoginOrSignupDialog(true)}
+              onClick={() => setShowLoginOrSignupModal(true)}
               variant="ghost"
               className="bg-white text-purple-600 hover:shadow-lg hover:text-purple-600 hover:bg-white">
               Sign In
             </Button>
-
-            {/*}
-            <Button onClick={() => setShowLoginOrSignupDialog(true)} className="bg-purple-700 text-white hover:bg-purple-800">
-              Sign Up
-            </Button>
-            */}
           </div>
         )}
 
@@ -442,28 +436,28 @@ export default function App() {
           </Card>
         </div>
       </main>
-      <PurchaseFileConfirmationDialog
+      <PurchaseFileConfirmationModal
         open={!!fileToPurchase}
         onOpenChange={() => { setFileToPurchase(null) }}
         userFile={fileToPurchase}
         onProceed={async () => { return fileToPurchase ? await purchaseFile(fileToPurchase) : false }}
       />
 
-      <LoginOrSignupDialog
-        open={showLoginOrSignupDialog}
-        onOpenChange={(open) => { setShowLoginOrSignupDialog(open) }}
+      <LoginOrSignupModal
+        open={showLoginOrSignupModal}
+        onOpenChange={(open) => { setShowLoginOrSignupModal(open) }}
         mode="login"
       />
 
-      <PurchaseCreditsDialog
-        open={showPurchaseCreditsDialog}
-        onOpenChange={(open) => { setShowPurchaseCreditsDialog(open) }}
+      <PurchaseCreditsModal
+        open={showPurchaseCreditsModal}
+        onOpenChange={(open) => { setShowPurchaseCreditsModal(open) }}
       />
 
-      <InsufficientCreditsDialog
-        open={showInsufficientCreditsDialog}
-        onOpenChange={(open) => { setShowInsufficientCreditsDialog(open) }}
-        onProceed={() => { setShowInsufficientCreditsDialog(false); setShowPurchaseCreditsDialog(true) } } />
+      <InsufficientCreditsModal
+        open={showInsufficientCreditsModal}
+        onOpenChange={(open) => { setShowInsufficientCreditsModal(open) }}
+        onProceed={() => { setShowInsufficientCreditsModal(false); setShowPurchaseCreditsModal(true) } } />
     </div>
   )
 }

@@ -12,19 +12,19 @@ import { UserFile } from "fixitpdf-shared"
 import { Coins, Loader2 } from 'lucide-react'
 import { useEffect, useState } from "react"
 
-interface PurchaseFileConfirmationDialogProps {
+interface PurchaseFileConfirmationModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   userFile: UserFile | null
   onProceed: () => Promise<boolean>
 }
 
-export const PurchaseFileConfirmationDialog = ({
+export const PurchaseFileConfirmationModal = ({
   open,
   onOpenChange,
   userFile,
   onProceed
-}: PurchaseFileConfirmationDialogProps) => {
+}: PurchaseFileConfirmationModalProps) => {
   const [isLoading, setIsLoading] = useState(false)
 
   const { data: userInfo } = useGetUserInfo({
@@ -58,7 +58,7 @@ export const PurchaseFileConfirmationDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md mx-auto my-4 w-[calc(100%-2rem)] rounded-lg">
         <DialogHeader>
-          <DialogTitle className="text-purple-700 text-xl">Fix PDF File</DialogTitle>
+          <DialogTitle className="text-gray-800 text-xl">Fix PDF File</DialogTitle>
           <div className="space-y-4 py-4">
             <DialogDescription className="pt-3">
                 Are you sure you want to fix <span className="font-medium text-foreground">{userFile?.name}</span>?
@@ -81,14 +81,14 @@ export const PurchaseFileConfirmationDialog = ({
         <DialogFooter className="flex flex-col sm:flex-row gap-2">
           <Button
             variant="outline"
-            className="w-full sm:w-auto py-6 sm:py-4 text-base md:text-sm order-1 sm:order-none"
+            className="w-full sm:w-auto py-6 sm:py-4 text-sm order-1 sm:order-none"
             onClick={() => onOpenChange(false)} disabled={isLoading}>
             Cancel
           </Button>
           <Button
             onClick={handleProceed}
             disabled={isLoading}
-            className="w-full sm:w-auto py-6 sm:py-4 text-base md:text-sm bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+            className="w-full sm:w-auto py-6 sm:py-4 text-sm font-semibold bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
           >
             {isLoading ? (
               <>
