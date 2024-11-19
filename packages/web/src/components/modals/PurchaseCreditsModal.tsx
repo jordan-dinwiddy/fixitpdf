@@ -166,7 +166,7 @@ export const PurchaseCreditsModal = ({
     }
 
     window.location.href = data.data.url;
-  }, [onOpenChange]);
+  }, []);
 
   // Strip has a different set of pricing for dev vs production
   const options: PurchaseOption[] = process.env.NODE_ENV === "development" ? DEV_PURCHASE_OPTIONS : PROD_PURCHASE_OPTIONS;
