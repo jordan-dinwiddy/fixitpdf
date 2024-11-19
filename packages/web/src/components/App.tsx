@@ -338,7 +338,7 @@ export default function App() {
         <div className="space-y-6">
 
           {/* Drag and Drop / Upload card */}
-          <Card className="shadow-xl transition-all duration-300 hover:shadow-2xl">
+          <Card className="border-none shadow-xl transition-all duration-300 hover:shadow-2xl">
             <CardHeader>
               <CardTitle className="text-3xl font-bold text-center text-purple-700">Upload Your PDF</CardTitle>
             </CardHeader>
@@ -361,7 +361,7 @@ export default function App() {
           </Card>
 
           {/* File list card */}
-          <Card className="transition-all duration-300 shadow-xl">
+          <Card className="border-none transition-all duration-300 shadow-xl">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-purple-700">Your Files ({files?.length || 0})</CardTitle>
             </CardHeader>
