@@ -14,6 +14,7 @@ import {
 import { useToast } from '@/hooks/use-toast'
 import { apiClient } from "@/lib/axios"
 import { useGetUserInfo } from '@/lib/hooks/useGetUserInfo'
+import { useMessageBanners } from '@/lib/hooks/useMessageBanners'
 import { TooltipProvider } from '@radix-ui/react-tooltip'
 import { useQueryClient } from "@tanstack/react-query"
 import { CreateUserFileRequest, CreateUserFileResponse, CreateUserFileResponseData, PurchaseUserFileResponse, UserFile } from "fixitpdf-shared"
@@ -24,14 +25,12 @@ import { useCallback, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import { useGetUserFiles } from '../lib/hooks/useGetUserFiles'
-import { DeleteFileButton } from './DeleteFileButton'
-import { DownloadFileButton } from "./DownloadFileButton"
-import { FixFileButton } from './FixFileButton'
 import { InsufficientCreditsModal } from './modals/InsufficientCreditsModal'
 import { LoginOrSignupModal } from './modals/LoginOrSignupModal'
 import { PurchaseFileConfirmationModal } from './modals/PurchaseFileConfirmationModal'
-import { useMessageBanners } from '@/lib/hooks/useMessageBanners'
 import { WelcomeNewUserModal } from './modals/WelcomeNewUserModal'
+import { Badge } from './ui/badge'
+import { FileRow } from './FileRow'
 
 interface RequestFileCreationResult {
   file: File,
@@ -170,8 +169,8 @@ export default function App() {
   /**
    * Delete a file and refresh.
    */
-  const deleteFile = useCallback(async (fileId: string) => {
-    await apiClient.delete(`/api/user/files/${fileId}`);
+  const deleteFile = useCallback(async (file: UserFile) => {
+    await apiClient.delete(`/api/user/files/${file.id}`);
     queryClient.invalidateQueries({ queryKey: ['userFiles'] });
   }, [queryClient]);
 
@@ -277,13 +276,9 @@ export default function App() {
           <Loader2 className="h-6 w-6 text-white animate-spin" />
         ) : session ? (
           <div className="flex items-center gap-4">
-            <span className="text-sm text-white">
               {userInfo ? (
-                <span>
-                  {userInfo?.creditBalance} credits available
-                </span>
+                <Badge variant="secondary" className="h-8 px-4 text-sm rounded-2xl">{userInfo?.creditBalance} credits available</Badge>
               ) : null}
-            </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full p-0 overflow-hidden">
@@ -336,7 +331,7 @@ export default function App() {
         <div className="space-y-6">
 
           {/* Drag and Drop / Upload card */}
-          <Card className="border-none shadow-xl transition-all duration-300 hover:shadow-2xl">
+          <Card className="border-none shadow-xl transition-all duration-300 hover:shadow-2xl rounded-none sm:rounded-xl">
             <CardHeader>
               <CardTitle className="text-3xl font-bold text-center text-purple-700">Upload Your PDF</CardTitle>
             </CardHeader>
@@ -359,9 +354,12 @@ export default function App() {
           </Card>
 
           {/* File list card */}
-          <Card className="border-none transition-all duration-300 shadow-xl">
+          <Card className="border-none transition-all duration-300 shadow-xl rounded-none sm:rounded-xl">
             <CardHeader>
-              <CardTitle className="text-2xl font-bold text-purple-700">Your Files ({files?.length || 0})</CardTitle>
+              <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                Your Files
+                <Badge variant="secondary">{files?.length || 0}</Badge>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               {isFilesLoading && (
@@ -379,60 +377,7 @@ export default function App() {
               {!isFilesLoading && !isFilesError && files && files?.length > 0 && (
                 <TooltipProvider>
                   <ul className="space-y-4">
-                    {files.map((file) => (
-                      <li key={file.id} className="flex items-center justify-between p-4 rounded-lg transition-all duration-300 border">
-                        <div className="flex items-center space-x-3">
-                          <FileText className="h-6 w-6 text-gray-500" />
-                          <span className="font-medium text-gray-700 text-sm">{file.name}</span>
-                        </div>
-
-                        <div className="flex items-center space-x-2">
-                          {/* Status text */}
-                          <div className="flex items-center space-x-2">
-                            {file.state === 'uploading' && (
-                              <span className="text-gray-500 flex items-center text-sm">
-                                <Loader2 className="animate-spin h-4 w-4 mr-2 text-sm" />
-                                Uploading...
-                              </span>
-                            )}
-                            {file.state === 'processing' && (
-                              <span className="text-blue-500 flex items-center text-sm">
-                                <Loader2 className="animate-spin h-4 w-4 mr-2" />
-                                Analyzing...
-                              </span>
-                            )}
-                            {file.state === 'processed' && (
-                              <span className="text-orange-500 text-sm">
-                                {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'} found
-                              </span>
-                            )}
-                            {file.state === 'purchased' && (
-                              <span className="text-green-500 text-sm">
-                                {file.issueCount} {file.issueCount === 1 ? 'issue' : 'issues'} fixed!
-                              </span>
-                            )}
-                            {file.state === 'processing_failed' && (
-                              <span className="text-red-500 text-sm">
-                                Unable to fix
-                              </span>
-                            )}
-                          </div>
-
-
-                          { /* File actions */}
-                          <div className="flex items-center ">
-                            {file.state === 'processed' && file.issueCount > 0 && (
-                              <FixFileButton onClick={() => handleFileFix(file)} />
-                            )}
-                            {file.state === 'purchased' && (
-                              <DownloadFileButton userFile={file} />
-                            )}
-                            <DeleteFileButton onClick={() => deleteFile(file.id)} />
-                          </div>
-                        </div>
-
-                      </li>
-                    ))}
+                    {files.map(file => <FileRow key={file.id} file={file} onDelete={deleteFile} onFix={handleFileFix} />)}
                   </ul>
                 </TooltipProvider>
               )}
@@ -461,7 +406,7 @@ export default function App() {
       <InsufficientCreditsModal
         open={showInsufficientCreditsModal}
         onOpenChange={(open) => { setShowInsufficientCreditsModal(open) }}
-        onProceed={() => { setShowInsufficientCreditsModal(false); setShowPurchaseCreditsModal(true) } } />
+        onProceed={() => { setShowInsufficientCreditsModal(false); setShowPurchaseCreditsModal(true) }} />
 
       <WelcomeNewUserModal
         open={isBannerVisible('welcome_new_user')}
