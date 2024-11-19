@@ -159,9 +159,6 @@ export const PurchaseCreditsModal = ({
   const isDesktop = useMediaQuery("(min-width: 768px)")
 
   const handlePurchase = useCallback(async (purchaseOption: PurchaseOption) => {
-    // Sleep for 2 seconds
-    console.log(purchaseOption);
-
     const { data } = await apiClient.post<CreateCheckoutSessionsResponse>("/api/checkout-sessions", { priceId: purchaseOption.priceId });
 
     if (!data.success || !data.data) {
@@ -169,8 +166,6 @@ export const PurchaseCreditsModal = ({
     }
 
     window.location.href = data.data.url;
-
-    onOpenChange(false);
   }, [onOpenChange]);
 
   // Strip has a different set of pricing for dev vs production
