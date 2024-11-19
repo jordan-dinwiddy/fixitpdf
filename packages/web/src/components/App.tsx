@@ -277,7 +277,11 @@ export default function App() {
         ) : session ? (
           <div className="flex items-center gap-4">
               {userInfo ? (
-                <Badge variant="secondary" className="h-8 px-4 text-sm rounded-2xl truncate">
+                <Badge
+                  variant="secondary"
+                  className="h-8 px-4 text-sm rounded-2xl truncate cursor-pointer hover:bg-white"
+                  onClick={() => setShowPurchaseCreditsModal(true) }
+                >
                   {userInfo?.creditBalance} credits
                   <span className="hidden sm:inline">&nbsp;available</span>
                 </Badge>
