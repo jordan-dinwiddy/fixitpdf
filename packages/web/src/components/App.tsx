@@ -83,9 +83,9 @@ const buildTempUserFile = (file: File): UserFile => {
   };
 }
 
-interface PaymentResult {
+interface ToastMessage {
   success: boolean;
-  error?: string;
+  message: string;
 }
 
 /**
@@ -116,17 +116,17 @@ export default function App() {
 
   const { isBannerVisible, ackBanner } = useMessageBanners();
 
-  const showPaymentToast = useCallback((paymentResult: PaymentResult) => {
+  const showToast = useCallback((ToastMessage: ToastMessage) => {
     toast({
       description: (
         <div className="flex items-center gap-2">
-          {paymentResult.success ? (
+          {ToastMessage.success ? (
             <CheckCircle2 className="h-5 w-5 text-green-600" />
           ) : (
             <XCircle className="h-5 w-5 text-red-700" />
           )}
-          <span className={`${paymentResult.success ? "text-green-600" : "text-red-700"} font-semibold`}>
-            {paymentResult.success ? "Payment successful!" : "Unable to complete payment"}
+          <span className={`${ToastMessage.success ? "text-green-600" : "text-red-700"} font-semibold`}>
+            {ToastMessage.message}
           </span>
         </div>
       ),
@@ -141,8 +141,9 @@ export default function App() {
 
     if (paymentStatus) {
       if (paymentStatus === "success") {
-        showPaymentToast({
+        showToast({
           success: true,
+          message: "Payment successful! Your credits have been added to your account.",
         });
       } else if (paymentStatus === "cancelled") {
         setShowPurchaseCreditsModal(true);
@@ -153,7 +154,7 @@ export default function App() {
       const newUrl = `${window.location.pathname}?${queryParams.toString()}`;
       router.replace(newUrl);
     }
-  }, [router, showPaymentToast]);
+  }, [router, showToast]);
 
   const optimisticFileCreation = useCallback((file: File) => {
     const newUserFile: UserFile = buildTempUserFile(file);
@@ -228,22 +229,29 @@ export default function App() {
   });
 
   const purchaseFile = useCallback(async (file: UserFile): Promise<boolean> => {
-    console.log(`Purchasing file with id: ${file.id}`);
-
     const { data } = await apiClient.post<PurchaseUserFileResponse>(`/api/user/files/${file.id}/purchase`);
 
     if (!data.success) {
+      showToast({
+        success: false,
+        message: `Unable to fix file. Please try again.`,
+      });
       console.error('Error purchasing file:', data.error);
       return false;
     }
 
     // Block for a few seconds
     await new Promise((resolve) => setTimeout(resolve, 2000));
-    console.log(`File purchased: ${file.id}`);
-    queryClient.invalidateQueries({ queryKey: ['userInfo'] });
+    queryClient.invalidateQueries({ queryKey: ['userInfo'] });    // To update credit balance
     queryClient.invalidateQueries({ queryKey: ['userFiles'] });
+
+    showToast({
+      success: true,
+      message: `${file.issueCount} issues fixed! Your file is ready for download.`,
+    });
+
     return true;
-  }, [queryClient]);
+  }, [queryClient, showToast]);
 
   const handleFileFix = useCallback(async (file: UserFile) => {
     const creditBalance = userInfo?.creditBalance || 0;
