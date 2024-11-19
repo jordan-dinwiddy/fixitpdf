@@ -25,7 +25,7 @@ export const InsufficientCreditsDialog = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md mx-auto my-4 w-[calc(100%-2rem)] rounded-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl">Insufficient Credits</DialogTitle>
+          <DialogTitle className="text-purple-700 text-xl">Insufficient Credits</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="flex items-center gap-2 text-yellow-600">
