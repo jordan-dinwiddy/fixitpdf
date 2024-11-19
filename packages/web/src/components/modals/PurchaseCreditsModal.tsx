@@ -16,10 +16,10 @@ import {
 import { motion } from 'framer-motion'
 import { Check, ChevronRight, Loader2, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from "react"
-import { Drawer, DrawerContent } from "./ui/drawer"
-import { ScrollArea } from "./ui/scroll-area"
+import { Drawer, DrawerContent } from "@/components/ui/drawer"
+import { ScrollArea } from "@/components/ui/scroll-area"
 
-interface PurchaseCreditsDialogProps {
+interface PurchaseCreditsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
 }
@@ -152,10 +152,10 @@ function useMediaQuery(query: string) {
  * @param param0 
  * @returns 
  */
-export const PurchaseCreditsDialog = ({
+export const PurchaseCreditsModal = ({
   open,
   onOpenChange,
-}: PurchaseCreditsDialogProps) => {
+}: PurchaseCreditsModalProps) => {
   const isDesktop = useMediaQuery("(min-width: 768px)")
 
   const handlePurchase = useCallback(async (purchaseOption: PurchaseOption) => {

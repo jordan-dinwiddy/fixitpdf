@@ -10,16 +10,16 @@ import { Loader2 } from 'lucide-react'
 import { signIn } from "next-auth/react"
 import { useEffect, useRef, useState } from "react"
 
-interface LoginOrSignupDialogProps {
+interface LoginOrSignupModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   mode: 'login' | 'signup'
 }
 
-export const LoginOrSignupDialog = ({
+export const LoginOrSignupModal = ({
   open,
   onOpenChange,
-}: LoginOrSignupDialogProps) => {
+}: LoginOrSignupModalProps) => {
   const [loadingProvider, setLoadingProvider] = useState<'google' | 'microsoft' | 'apple' | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null); // Ref to store the timeout ID
 

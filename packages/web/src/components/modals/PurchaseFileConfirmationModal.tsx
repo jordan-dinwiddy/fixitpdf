@@ -12,19 +12,19 @@ import { UserFile } from "fixitpdf-shared"
 import { Coins, Loader2 } from 'lucide-react'
 import { useEffect, useState } from "react"
 
-interface PurchaseFileConfirmationDialogProps {
+interface PurchaseFileConfirmationModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   userFile: UserFile | null
   onProceed: () => Promise<boolean>
 }
 
-export const PurchaseFileConfirmationDialog = ({
+export const PurchaseFileConfirmationModal = ({
   open,
   onOpenChange,
   userFile,
   onProceed
-}: PurchaseFileConfirmationDialogProps) => {
+}: PurchaseFileConfirmationModalProps) => {
   const [isLoading, setIsLoading] = useState(false)
 
   const { data: userInfo } = useGetUserInfo({

@@ -9,17 +9,17 @@ import {
 } from "@/components/ui/dialog"
 import { AlertCircle } from 'lucide-react'
 
-interface InsufficientCreditsDialogProps {
+interface InsufficientCreditsModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   onProceed: () => void;
 }
 
-export const InsufficientCreditsDialog = ({
+export const InsufficientCreditsModal = ({
   open,
   onOpenChange,
   onProceed
-}: InsufficientCreditsDialogProps) => {
+}: InsufficientCreditsModalProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
