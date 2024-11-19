@@ -9,6 +9,7 @@ import {
 import { Loader2 } from 'lucide-react'
 import { signIn } from "next-auth/react"
 import { useEffect, useRef, useState } from "react"
+import { GoogleIcon, AppleIcon } from "../Icons"
 
 interface LoginOrSignupModalProps {
   open: boolean
@@ -28,9 +29,9 @@ export const LoginOrSignupModal = ({
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-  
+
     setLoadingProvider(provider);
-    
+
     timeoutRef.current = setTimeout(() => {
       setLoadingProvider(null);
     }, 4000);
@@ -73,7 +74,12 @@ export const LoginOrSignupModal = ({
             onClick={() => handleLogin('google')}
             disabled={loadingProvider !== null}
             className="bg-white hover:bg-purple-50 text-base text-purple-700 w-full justify-center px-4 py-6 focus-visible:ring-0 focus-visible:ring-offset-0">
-            {loadingProvider === 'google' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <div>Continue with Google</div>}
+            {loadingProvider === 'google' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : (
+              <>
+                <GoogleIcon fillColor="#7e22ce" className="h-5 w-5 mr-2" />
+                Continue with Google
+              </>
+            )}
           </Button>
           {/* <Button
             onClick={() => handleLogin('microsoft')}
@@ -86,7 +92,12 @@ export const LoginOrSignupModal = ({
             onClick={() => handleLogin('apple')}
             disabled={loadingProvider !== null}
             className="bg-purple-600 hover:bg-purple-700 text-base text-white w-full justify-center px-4 py-6 focus-visible:ring-0 focus-visible:ring-offset-0">
-            {loadingProvider === 'apple' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <div>Continue with Apple</div>}
+            {loadingProvider === 'apple' ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : (
+              <>
+                <AppleIcon fillColor="#ffffff" className="h-5 w-5 mr-2" />
+                Continue with Apple
+              </>
+            )}
           </Button>
         </div>
       </DialogContent>
