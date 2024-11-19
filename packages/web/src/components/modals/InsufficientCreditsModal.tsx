@@ -25,7 +25,7 @@ export const InsufficientCreditsModal = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md mx-auto my-4 w-[calc(100%-2rem)] rounded-lg">
         <DialogHeader>
-          <DialogTitle className="text-purple-700 text-xl">Insufficient Credits</DialogTitle>
+          <DialogTitle className="text-gray-800 text-xl">Insufficient Credits</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="flex items-center gap-2 text-yellow-600">
@@ -39,12 +39,12 @@ export const InsufficientCreditsModal = ({
           </p>
         </div>
         <DialogFooter className="flex flex-col sm:flex-row gap-2">
-          <Button variant="outline" className="w-full sm:w-auto py-6 sm:py-4 text-base md:text-sm order-1 sm:order-none" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" className="w-full sm:w-auto py-6 sm:py-4 text-sm order-1 sm:order-none" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
           <Button
             onClick={onProceed}
-            className="w-full sm:w-auto py-6 sm:py-4 text-base md:text-sm bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
+            className="w-full sm:w-auto py-6 sm:py-4 font-semibold text-sm bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600"
           >
             Buy More Credits
           </Button>

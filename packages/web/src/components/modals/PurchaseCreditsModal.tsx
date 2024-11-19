@@ -109,7 +109,7 @@ const PurchaseOptions = ({ isDesktop, options, handlePurchase }: PurchaseOptions
       {/* Footer */}
       <div className={`p-6 md:p-8 ${!isDesktop && 'bg-gray-50'} border-t border-gray-200`}>
         <Button
-          className={'w-full py-6 px-4 rounded-lg text-base font-medium text-white transition-all duration-200 ease-in-out flex items-center justify-center outline-none bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'}
+          className={'w-full py-6 px-4 rounded-lg text-sm font-semibold text-white transition-all duration-200 ease-in-out flex items-center justify-center outline-none bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600'}
           onClick={handlePurchaseWrapped}
           disabled={isLoading || selectedOption === null}
         >
@@ -181,7 +181,7 @@ export const PurchaseCreditsModal = ({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="flex flex-col sm:max-w-[525px] max-h-[calc(100vh-64px)]">
           <DialogHeader className="space-y-3">
-            <DialogTitle className="text-purple-700 text-xl">Buy Credits</DialogTitle>
+            <DialogTitle className="text-gray-800 text-xl">Buy Credits</DialogTitle>
             <DialogDescription className="text-sm">
               Choose your credit package and start fixing PDFs like a pro!
             </DialogDescription>
@@ -197,7 +197,7 @@ export const PurchaseCreditsModal = ({
       <DrawerContent>
         <div className="flex flex-col h-[100dvh]">
           <div className="p-6 md:p-8 border-b border-gray-200 flex justify-between items-center">
-            <h2 className="text-2xl md:text-3xl font-semibold text-purple-700">Buy Credits</h2>
+            <h2 className="text-2xl md:text-3xl font-semibold text-gray-800">Buy Credits</h2>
             {!isDesktop && (
               <Button
                 variant="ghost"
