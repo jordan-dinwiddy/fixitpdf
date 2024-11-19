@@ -93,7 +93,7 @@ export const FileRow = ({ file, onDelete, onFix }: FileRowProps) => {
         {file.state === 'purchased' && (
           <DownloadFileButton userFile={file} />
         )}
-        <DeleteFileButton onClick={() => onDelete(file)} />
+        <DeleteFileButton onClick={async () => await onDelete(file)} />
       </div>
     </li>
   )
