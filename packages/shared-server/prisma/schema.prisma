@@ -23,7 +23,7 @@ model User {
 
   files File[]
 
-  creditBalance  Int @default(10)
+  creditBalance  Int @default(5)
   transactions   AccountBalanceTransaction[] 
 
   showWelcomeMessage  Boolean @default(true)
