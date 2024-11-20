@@ -35,6 +35,7 @@ import { LoginOrSignupModal } from './modals/LoginOrSignupModal'
 import { PurchaseFileConfirmationModal } from './modals/PurchaseFileConfirmationModal'
 import { WelcomeNewUserModal } from './modals/WelcomeNewUserModal'
 import { Badge } from './ui/badge'
+import { useTrackEvent } from '@/lib/hooks/useTrackEvent'
 
 interface RequestFileCreationResult {
   file: File,
@@ -120,6 +121,18 @@ export default function App() {
 
   const { isBannerVisible, ackBanner } = useMessageBanners({ enabled: !!session });
 
+  const trackEvent = useTrackEvent();
+  
+  const showSignInOrSignUp = useCallback(() => {
+    setShowLoginOrSignupModal(true);
+
+    trackEvent({
+      action: 'shown-signin-signup',
+      category: 'auth',
+      label: 'Shown Signin Signup',
+    });
+  }, [trackEvent]);
+
   const showToast = useCallback((ToastMessage: ToastMessage) => {
     toast({
       description: (
@@ -176,7 +189,13 @@ export default function App() {
   const deleteFile = useCallback(async (file: UserFile) => {
     await apiClient.delete(`/api/user/files/${file.id}`);
     queryClient.invalidateQueries({ queryKey: ['userFiles'] });
-  }, [queryClient]);
+
+    trackEvent({
+      action: 'delete-file',
+      category: 'files',
+      label: 'Delete File',
+    });
+  }, [queryClient, trackEvent]);
 
   /**
    * Handle file drop event.
@@ -189,9 +208,15 @@ export default function App() {
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     const promises: Promise<RequestFileCreationResult>[] = [];
 
+    trackEvent({
+      action: 'dropzone-dropped-file',
+      category: 'files',
+      label: 'Dropzone Drop File',
+    });
+
     // User must be logged in to upload files
     if (!session) {
-      setShowLoginOrSignupModal(true);
+      showSignInOrSignUp();
       return;
     }
 
@@ -216,14 +241,20 @@ export default function App() {
       await startFileProcessing(fileCreationResult.response.file.id);
       queryClient.invalidateQueries({ queryKey: ['userFiles'] });
     });
-  }, [optimisticFileCreation, queryClient, session, setShowLoginOrSignupModal]);
+  }, [optimisticFileCreation, queryClient, session, showSignInOrSignUp, trackEvent]);
 
   const handleDropZoneClick = useCallback((event: React.MouseEvent) => {
+    trackEvent({
+      action: 'dropzone-clicked',
+      category: 'files',
+      label: 'Dropzone Clicked',
+    });
+
     if (!session) {
-      setShowLoginOrSignupModal(true);
+      showSignInOrSignUp();
       event.preventDefault(); // Prevent opening file picker
     }
-  }, [setShowLoginOrSignupModal, session]);
+  }, [showSignInOrSignUp, session, trackEvent]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -249,23 +280,52 @@ export default function App() {
     queryClient.invalidateQueries({ queryKey: ['userInfo'] });    // To update credit balance
     queryClient.invalidateQueries({ queryKey: ['userFiles'] });
 
+    trackEvent({
+      action: 'purchased-file',
+      category: 'files',
+      label: 'Purchase File',
+    });
+
     showToast({
       success: true,
       message: `${file.issueCount} issues fixed! Your file is ready for download.`,
     });
 
     return true;
-  }, [queryClient, showToast]);
+  }, [queryClient, showToast, trackEvent]);
 
   const handleFileFix = useCallback(async (file: UserFile) => {
     const creditBalance = userInfo?.creditBalance || 0;
 
     if (creditBalance > 0) {
-      setFileToPurchase(file)
+      setFileToPurchase(file);
+
+      trackEvent({
+        action: 'prompted-purchase-file',
+        category: 'files',
+        label: 'Prompted Purchase File',
+      });
     } else {
       setShowInsufficientCreditsModal(true);
+
+      trackEvent({
+        action: 'shown-insufficient-credits',
+        category: 'files',
+        label: 'Shown Insufficient Credits',
+      });
     }
-  }, [userInfo]);
+  }, [userInfo, trackEvent]);
+
+  // When user clicks on the Buy Credits button
+  const handleBuyCredits = useCallback(() => {
+    setShowPurchaseCreditsModal(true);
+
+    trackEvent({
+      action: 'clicked-buy-credits',
+      category: 'credits',
+      label: 'Clicked Buy Credits',
+    });
+  }, [trackEvent]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500">
@@ -291,7 +351,7 @@ export default function App() {
               <Badge
                 variant="secondary"
                 className="text-sm rounded-2xl truncate cursor-pointer bg-white hover:bg-white backdrop-blur-sm font-semibold"
-                onClick={() => setShowPurchaseCreditsModal(true)}
+                onClick={handleBuyCredits}
               >
                 {userInfo?.creditBalance} credits
               </Badge>
@@ -318,7 +378,7 @@ export default function App() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer" onClick={() => setShowPurchaseCreditsModal(true)}>
+                <DropdownMenuItem className="cursor-pointer" onClick={handleBuyCredits}>
                   <CreditCard className="mr-2 h-4 w-4" />
                   <span>Buy Credits</span>
                 </DropdownMenuItem>
@@ -333,7 +393,7 @@ export default function App() {
         ) : (
           <div className="flex items-center gap-4">
             <Button
-              onClick={() => setShowLoginOrSignupModal(true)}
+              onClick={showSignInOrSignUp}
               variant="ghost"
               className="bg-white text-purple-600 hover:shadow-lg hover:text-purple-600 hover:bg-white">
               Sign In
