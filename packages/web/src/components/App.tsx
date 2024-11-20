@@ -343,13 +343,13 @@ export default function App() {
 
       </header>
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto py-6 px-2 sm:px-6">
 
         <div className="space-y-6">
 
           {/* Drag and Drop / Upload card */}
-          <Card className="border-none shadow-xl transition-all duration-300 rounded-none sm:rounded-xl sm:hover:shadow-2xl ">
-            <CardHeader>
+          <Card className="border-none shadow-xl transition-all duration-300 rounded-xl sm:hover:shadow-2xl ">
+            <CardHeader className="p-4 sm:p-6">
               <CardTitle className="flex items-center justify-between text-3xl text-purple-700">
                 Upload Your PDF
                 <Tooltip>
@@ -361,11 +361,11 @@ export default function App() {
                   </TooltipContent>
                 </Tooltip>
               </CardTitle>
-              <CardDescription className="">
+              <CardDescription>
                 This tool will attempt to fix and restore your corrupted PDF files (including lost annotations).
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0 p-4 sm:p-6 sm:pt-0">
               <div
                 {...getRootProps({ onClick: handleDropZoneClick })}
                 className={`border-2 border-dashed rounded-lg p-10 text-center cursor-pointer transition-all duration-300 ${isDragActive ? 'border-purple-500 bg-purple-100 scale-105' : 'border-gray-300 hover:border-purple-400 hover:bg-purple-50'
@@ -384,14 +384,14 @@ export default function App() {
           </Card>
 
           {/* File list card */}
-          <Card className="border-none shadow-xl transition-all duration-300 rounded-none sm:rounded-xl">
-            <CardHeader>
+          <Card className="border-none shadow-xl transition-all duration-300 rounded-xl">
+            <CardHeader className="p-4 sm:p-6">
               <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                 Your Files
                 <Badge variant="secondary">{files?.length || 0}</Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-0 p-4 sm:p-6 sm:pt-0">
               {isFilesLoading && (
                 <div className="flex justify-center text-gray-500">
                   <Loader2 className="animate-spin h-8 w-8 mr-2" />
