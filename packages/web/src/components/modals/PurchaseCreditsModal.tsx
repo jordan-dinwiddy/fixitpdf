@@ -86,9 +86,11 @@ const PurchaseOptions = ({ isDesktop, options, handlePurchase }: PurchaseOptions
 
     try {
       if (selectedOption !== null) {
+        // Should result in a redirect to Stripe Checkout, if successful
         await handlePurchase(selectedOption)
       }
-    } finally {
+    } catch {
+      // Only turn the loading indicator off on error (since otherwise we would get redirected anyway)
       setIsLoading(false);
     }
   }, [selectedOption, handlePurchase]);
