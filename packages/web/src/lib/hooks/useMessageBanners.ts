@@ -16,12 +16,26 @@ const fetchUserMessageBanners = async (): Promise<MessageBanner[]> => {
   return response.data.data;
 };
 
-export const useMessageBanners = () => {
+
+export interface UseMessageBannersParams {
+  enabled: boolean;
+}
+
+export interface UseMessageBannersResult {
+  banners: MessageBanner[] | undefined;
+  isBannerVisible: (id: string) => boolean;
+  ackBanner: (id: string) => void;
+  isLoading: boolean;
+  error: Error | null;
+}
+
+export const useMessageBanners = ({ enabled }: UseMessageBannersParams): UseMessageBannersResult => {
   const queryClient = useQueryClient();
 
   const { data: banners, isLoading, error } = useQuery<MessageBanner[], Error>({
     queryKey: ["banners"],
     queryFn: fetchUserMessageBanners,
+    enabled,
   });
 
   const acknowledgeBannerMutation = useMutation<void, Error, string, MutationContext>({

@@ -114,7 +114,7 @@ export default function App() {
     refreshInterval: 30000,
   });
 
-  const { isBannerVisible, ackBanner } = useMessageBanners();
+  const { isBannerVisible, ackBanner } = useMessageBanners({ enabled: !!session });
 
   const showToast = useCallback((ToastMessage: ToastMessage) => {
     toast({
@@ -286,11 +286,10 @@ export default function App() {
             {userInfo ? (
               <Badge
                 variant="secondary"
-                className="h-8 px-4 text-sm rounded-2xl truncate cursor-pointer hover:bg-white"
+                className="text-sm rounded-2xl truncate cursor-pointer bg-white hover:bg-white backdrop-blur-sm font-semibold"
                 onClick={() => setShowPurchaseCreditsModal(true)}
               >
                 {userInfo?.creditBalance} credits
-                <span className="hidden sm:inline">&nbsp;available</span>
               </Badge>
             ) : null}
             <DropdownMenu>
@@ -360,7 +359,7 @@ export default function App() {
                 {
                   isDragActive ?
                     <p className="text-xl font-semibold text-purple-700">Drop the PDF files here ...</p> :
-                    <p className="text-xl font-semibold text-gray-700">Drag &apos;n&apos; drop PDF files here, or click to select</p>
+                    <p className="text-xl font-semibold text-gray-800">Drag and drop PDF files here, or click to select</p>
                 }
                 <p className="mt-2 text-sm text-gray-500">Supported files: PDF</p>
               </div>
@@ -385,7 +384,7 @@ export default function App() {
               {isFilesError && <p className="text-center text-red-500">An error occurred while fetching files</p>}
 
               {!isFilesLoading && !isFilesError && (!files || files?.length === 0) && (
-                <p className="text-center text-gray-500">No PDFs uploaded... yet</p>
+                <p className="text-center text-gray-500 py-8">No PDFs uploaded yet</p>
               )}
 
               {!isFilesLoading && !isFilesError && files && files?.length > 0 && (
