@@ -2,7 +2,7 @@
 
 import { PurchaseCreditsModal } from '@/components/modals/PurchaseCreditsModal'
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,22 +15,26 @@ import { useToast } from '@/hooks/use-toast'
 import { apiClient } from "@/lib/axios"
 import { useGetUserInfo } from '@/lib/hooks/useGetUserInfo'
 import { useMessageBanners } from '@/lib/hooks/useMessageBanners'
-import { TooltipProvider } from '@radix-ui/react-tooltip'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from "@/components/ui/tooltip"
 import { useQueryClient } from "@tanstack/react-query"
 import { CreateUserFileRequest, CreateUserFileResponse, CreateUserFileResponseData, PurchaseUserFileResponse, UserFile } from "fixitpdf-shared"
-import { CheckCircle2, CreditCard, FileText, Loader2, LogOut, Upload, User, XCircle } from 'lucide-react'
+import { CheckCircle2, CreditCard, FileText, HelpCircle, Loader2, LogOut, Upload, User, XCircle } from 'lucide-react'
 import { signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useCallback, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import { useGetUserFiles } from '../lib/hooks/useGetUserFiles'
+import { FileRow } from './FileRow'
 import { InsufficientCreditsModal } from './modals/InsufficientCreditsModal'
 import { LoginOrSignupModal } from './modals/LoginOrSignupModal'
 import { PurchaseFileConfirmationModal } from './modals/PurchaseFileConfirmationModal'
 import { WelcomeNewUserModal } from './modals/WelcomeNewUserModal'
 import { Badge } from './ui/badge'
-import { FileRow } from './FileRow'
 
 interface RequestFileCreationResult {
   file: File,
@@ -344,9 +348,22 @@ export default function App() {
         <div className="space-y-6">
 
           {/* Drag and Drop / Upload card */}
-          <Card className="border-none shadow-xl transition-all duration-300 hover:shadow-2xl rounded-none sm:rounded-xl">
+          <Card className="border-none shadow-xl transition-all duration-300 rounded-none sm:rounded-xl sm:hover:shadow-2xl ">
             <CardHeader>
-              <CardTitle className="text-3xl font-bold text-center text-purple-700">Upload Your PDF</CardTitle>
+              <CardTitle className="flex items-center justify-between text-3xl text-purple-700">
+                Upload Your PDF
+                <Tooltip>
+                  <TooltipTrigger>
+                    <HelpCircle className="w-5 h-5 text-purple-500" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Upload corrupted PDFs for instant repair</p>
+                  </TooltipContent>
+                </Tooltip>
+              </CardTitle>
+              <CardDescription className="">
+                This tool will attempt to fix and restore your corrupted PDF files (including lost annotations).
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div
@@ -367,7 +384,7 @@ export default function App() {
           </Card>
 
           {/* File list card */}
-          <Card className="border-none transition-all duration-300 shadow-xl rounded-none sm:rounded-xl">
+          <Card className="border-none shadow-xl transition-all duration-300 rounded-none sm:rounded-xl">
             <CardHeader>
               <CardTitle className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                 Your Files
@@ -388,11 +405,9 @@ export default function App() {
               )}
 
               {!isFilesLoading && !isFilesError && files && files?.length > 0 && (
-                <TooltipProvider>
-                  <ul className="space-y-4">
-                    {files.map(file => <FileRow key={file.id} file={file} onDelete={deleteFile} onFix={handleFileFix} />)}
-                  </ul>
-                </TooltipProvider>
+                <ul className="space-y-4">
+                  {files.map(file => <FileRow key={file.id} file={file} onDelete={deleteFile} onFix={handleFileFix} />)}
+                </ul>
               )}
             </CardContent>
           </Card>
