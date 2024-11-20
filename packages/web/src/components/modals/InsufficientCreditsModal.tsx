@@ -35,7 +35,7 @@ export const InsufficientCreditsModal = ({
             </DialogDescription>
           </div>
           <p className="text-sm text-muted-foreground">
-            Please purchase more credits to continue fixing PDF files.
+            Buy more credits to continue fixing PDF files.
           </p>
         </div>
         <DialogFooter className="flex flex-col sm:flex-row gap-2">
