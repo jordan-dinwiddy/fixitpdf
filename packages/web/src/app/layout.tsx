@@ -5,8 +5,8 @@ import Script from 'next/script';
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "FixItPDF",
-  description: "Fix your PDFs here!",
+  title: "FixItPDF - Fix Corrupted PDFs",
+  description: "Easily and instantly fix corrupted PDFs!",
 };
 
 export default function RootLayout({
