@@ -1,9 +1,11 @@
+import { defaultQueue } from '@/lib/queues';
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prismaClient } from 'fixitpdf-shared-server';
 import { NextAuthOptions, Session, User } from "next-auth";
 import { JWT } from "next-auth/jwt";
-import GoogleProvider from "next-auth/providers/google";
 import AppleProvider from "next-auth/providers/apple";
+import GoogleProvider from "next-auth/providers/google";
+
 
 /**
  * Apple resources: 
@@ -60,6 +62,21 @@ export const authOptions: NextAuthOptions = {
         token.userId = user.id;
       }
       return token;
+    },
+  },
+  events: {
+    async createUser({ user }) {
+      console.log('User created:', user);
+      
+      // Welcome message to the user
+      await defaultQueue.add('sendWelcomeEmailJob', {
+        userId: user.id,
+      });
+
+      // Notify admins
+      await defaultQueue.add('sendNewUserEmailJob', {
+        userId: user.id,
+      });
     },
   },
 };
