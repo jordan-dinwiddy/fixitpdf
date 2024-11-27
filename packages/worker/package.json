@@ -15,7 +15,8 @@
     "bullmq": "^5.25.6",
     "fixitpdf-shared": "file:../shared",
     "fixitpdf-shared-server": "file:../shared-server",
-    "ioredis": "^5.4.1"
+    "ioredis": "^5.4.1",
+    "resend": "^4.0.1"
   },
   "devDependencies": {
     "dotenv": "^16.4.5",

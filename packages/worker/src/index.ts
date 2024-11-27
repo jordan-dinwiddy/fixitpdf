@@ -1,8 +1,10 @@
 import { Worker } from 'bullmq';
 import { redisClient } from 'fixitpdf-shared-server';
 import { processFileJob } from './processors/fileProcessor';
+import { sendWelcomeEmailJob } from './processors/sendWelcomeEmailJob';
+import { sendNewUserEmailJob } from './processors/sendNewUserEmailJob';
 
-console.log('Loading email worker...');
+console.log('Loading BullMQ default worker...');
 console.log('Redis URL:', process.env.REDIS_URL);
 console.log(`${new Date().toISOString()} - Worker is running...`);
 
@@ -16,6 +18,12 @@ const defaultQueueWorker = new Worker(
     switch (job.name) {
       case 'processFileJob':
         await processFileJob(job.data);
+        break;
+      case 'sendWelcomeEmailJob':
+        await sendWelcomeEmailJob(job.data);
+        break;
+      case 'sendNewUserEmailJob':
+        await sendNewUserEmailJob(job.data);
         break;
       default:
         console.error(`Unknown job name: ${job.name}`);
