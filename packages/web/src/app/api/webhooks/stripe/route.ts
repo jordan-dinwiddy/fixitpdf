@@ -1,3 +1,4 @@
+import { defaultQueue } from '@/lib/queues';
 import { adjustUserCreditBalance } from '@/services/user/userService';
 import { DEV_PURCHASE_OPTIONS, PROD_PURCHASE_OPTIONS, PurchaseOption } from 'fixitpdf-shared';
 import { NextRequest, NextResponse } from 'next/server';
@@ -46,6 +47,14 @@ const fulfillUserOrder = async (sessionId: string, userId: string, priceId: stri
   );
 }
 
+const sendAdminPurchaseNotiEmail = async (userId: string, priceId: string) => {
+  const purchaseOption = priceIdToPurchaseOption(priceId);
+
+  await defaultQueue.add('sendAdminNewPurchaseEmailJob', {
+    userId,
+    purchaseOption,
+  });
+};
 /**
  * POST /api/webhooks/stripe
  * 
@@ -96,6 +105,9 @@ export async function POST(req: NextRequest) {
 
         // Add credits to the users account
         await fulfillUserOrder(session.id, userId, priceId);
+
+        // Send a thank you email
+        await sendAdminPurchaseNotiEmail(userId, priceId);
       } else {
         throw new Error(`Checkout session ${session.id} event did not include needed metadata`);
       }

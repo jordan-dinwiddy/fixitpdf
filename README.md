@@ -127,6 +127,13 @@ Just **note** that the `prisma generate` command generates new code in `/node_mo
 therefore doesn't intent for that code to be checked in to Git. Presumably each new fresh
 build of the project will regenerate the client.
 
+## More Prisma Commands
+```
+npx prisma migrate reset
+npx prisma migrate dev --name add_credits_etc_to_file
+npx prisma migrate dev --name init
+```
+
 ### Production
 1. `npx prisma migrate deploy` - just applies any outstanding migrations.
   * Note that in order to run this the prisma CLI must be available.
