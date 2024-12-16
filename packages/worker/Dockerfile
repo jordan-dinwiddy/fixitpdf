@@ -3,7 +3,8 @@
 # dbmigrations (npx prisma migrate deploy).
 #
 FROM node:18-alpine AS base
-
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat openssl
 # This deps image has all the node_modules installed (including dev dependencies) and only 
 # needs to be rebuilt when the package.json or package-lock.json files change.
 
@@ -35,8 +36,6 @@ RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
     fi
 
 FROM base AS deps
-# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install all dependencies
