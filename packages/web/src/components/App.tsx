@@ -297,7 +297,7 @@ export default function App() {
   const handleFileFix = useCallback(async (file: UserFile) => {
     const creditBalance = userInfo?.creditBalance || 0;
 
-    if (creditBalance > 0) {
+    if (creditBalance >= file.costInCredits!) {
       setFileToPurchase(file);
 
       trackEvent({
